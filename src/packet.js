@@ -5,6 +5,7 @@ const decode = (pk) => pk.body;
 const Packet = {
 
     EntityPosition: {
+        name: "entity.position",
         broadcast: true,
 
         decode,
@@ -20,6 +21,7 @@ const Packet = {
     },
 
     PlayerJoin: {
+        name: "player.join",
         broadcast: true,
 
         decode,
@@ -37,6 +39,7 @@ const Packet = {
     },
 
     PlayerLeave: {
+        name: "player.leave",
         broadcast: true,
 
         decode,
@@ -53,6 +56,7 @@ const Packet = {
     },
 
     Level: {
+        name: "level",
         decode,
 
         encode: (name, chunks) => {
@@ -67,6 +71,7 @@ const Packet = {
     },
 
     Chunk: {
+        name: "chunk",
         broadcast: true,
 
         decode,
@@ -80,6 +85,7 @@ const Packet = {
     },
 
     Ping: {
+        name: "ping",
         bounce: true,
 
         decode: (pk) => {
@@ -94,6 +100,7 @@ const Packet = {
     },
 
     Subscribe: {
+        name: "subscribe",
         decode: (pk) => {
             return true;
         },
@@ -106,6 +113,7 @@ const Packet = {
     },
 
     Message: {
+        name: "message",
         broadcast: true,
 
         decode: (pk) => {
