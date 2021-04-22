@@ -1,15 +1,20 @@
 const WebSocket = require('ws');
+const Level = require('./level.js');
+const Packet = require('./packet.js');
 
 const wss = new WebSocket.Server({ port: 27095 });
 
 const subscribers = [];
+Packet.Subscribe.listeners = [handleSubscriptions];
 
 wss.on('connection', (ws) => {
     console.log('Client connected');
 
 
     ws.on('message', (data) => {
-        Handler._process(data, ws);
+        if(!Handler._process(data, ws)) {
+            console.log('handling error detected');
+        }
     });
 
     ws.on('close', () => {
@@ -23,71 +28,16 @@ wss.on('connection', (ws) => {
     })
 });
 
+function handleSubscriptions(pk, ws) {
+    if(subscribers.indexOf(ws) === -1) {
+        subscribers.push(ws);
+        console.log('Client subscribed to broadcasts');
 
-const Packet = {
-
-    Ping: {
-        decode: (pk) => {
-            return pk.body.time;
-        },
-        encode: (time) => {
-            return Packet._encode('ping', { time });
-        },
-        handle: (pk, ws) => {
-            ws.send(
-                Packet.Ping.encode(
-                    Packet.Ping.decode(pk)
-                )
-            )
-        }
-    },
-
-    Subscribe: {
-        decode: (pk) => {
-            return true;
-        },
-        encode: () => {
-            return Packet._encode('subscribe')
-        },
-        handle: (pk, ws) => {
-            if(subscribers.indexOf(ws) === -1) {
-                subscribers.push(ws);
-                console.log('Client subscribed to broadcasts');
-
-                return true;
-            }
-            console.log('Client tried subscribing twice, thats not allowed!');
-
-            return false;
-        }
-    },
-
-    Message: {
-        decode: (pk) => {
-            return pk.body.message;
-        },
-        encode: (message) => {
-            return Packet._encode('message', { message });
-        },
-        handle: (pk, ws) => {
-            console.log('Message: ' + Packet.Message.decode(pk));
-
-            Handler._broadcast(
-                Packet.Message.encode(
-                    Packet.Message.decode(pk)
-                )
-            );
-        }
-    },
-
-    _encode: (type, body = {}, extra = {}) => {
-        return JSON.stringify({ type, body, ...extra });
-    },
-
-    _decode: (data) => {
-        return JSON.parse(data);
+        return true;
     }
+    console.log('Client tried subscribing twice, thats not allowed!');
 
+    return false;
 }
 
 const Handler = {
@@ -117,7 +67,27 @@ const Handler = {
             return false;
         }
 
-        return $type.handle(pk, ws);
+        let status = $type.handle(pk, ws);
+
+        if($type.listeners) {
+            $type.listeners.forEach(cb => {
+                cb(pk, ws);
+            })
+        }
+
+        if(!status) return false;
+
+        // Do common actions
+        let encoded = $type.encode($type.decode(pk));
+
+        if($type.bounce) {
+            ws.send(encoded);
+        }
+        if($type.broadcast) {
+            Handler._broadcast(encoded);
+        }
+
+        return status;
     },
 
     _validate: (packet, ws) => {
