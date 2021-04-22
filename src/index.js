@@ -63,20 +63,13 @@ function handleSubscriptions(pk, ws) {
 
     return false;
 }
-
+const reg = {};
+Object.keys(Packet).filter(i=> !i.startsWith("_")).forEach(i=> {
+    reg[Packet[i].name] = Packet[i];
+})
 const Handler = {
 
-    registered: {
-        'entity.position': Packet.EntityPosition,
-        'player.join': Packet.PlayerJoin,
-        'player.leave': Packet.PlayerLeave,
-
-        'level': Packet.Level,
-        'chunk': Packet.Chunk,
-        'ping': Packet.Ping,
-        'subscribe': Packet.Subscribe,
-        'message': Packet.Message,
-    },
+    registered: reg,
 
     _process: (data, ws) => {
         let pk, $type;
