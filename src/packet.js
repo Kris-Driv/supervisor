@@ -1,5 +1,20 @@
 const Packet = {
 
+    Level: {
+        decode: (pk) => {
+            return pk.body;
+        },
+        encode: (name, chunks) => {
+            return Packet._encode('level', {
+                name,
+                chunks: Buffer.from(JSON.stringify(chunks)).toString('base64')
+            });
+        },
+        handle: (pk, ws) => {
+            return true;
+        }
+    },
+
     Chunk: {
         broadcast: true,
 

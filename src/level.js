@@ -1,9 +1,32 @@
-function Level(name = 'world') {
+const Packet = require("./packet");
 
-    this.name = name;
-    this.chunks = [];
+class Level {
+
+    constructor(name = 'world') {
+        console.log(`Level cache for '${name}' initiated`);
+
+        this.name = name;
+        this.chunks = [];
+    }
+
+    setChunk(x, z, chunk) {
+        if(!this.chunks[x]) {
+            this.chunks[x] = [];
+        }
+        this.chunks[x][z] = chunk;
+    }
+
+    setChunks(chunks) {
+        chunks.forEach(chunk => {
+            this.setChunk(chunk.x, chunk.z, chunk);
+        });
+    }
+
+    toPacket() {
+        return Packet.Level.encode(this.name, this.chunks);
+    }
 
 }
 
-
+// Export the class
 module.exports = Level;

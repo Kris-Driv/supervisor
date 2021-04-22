@@ -5,7 +5,12 @@ const Packet = require('./packet.js');
 const wss = new WebSocket.Server({ port: 27095 });
 
 const subscribers = [];
+
+const levelCache = new Level('pm_level1');
+
 Packet.Subscribe.listeners = [handleSubscriptions];
+Packet.Chunk.listeners = [handleChunkPacket];
+Packet.Level.listeners = [handleLevelPacket];
 
 wss.on('connection', (ws) => {
     console.log('Client connected');
@@ -28,6 +33,17 @@ wss.on('connection', (ws) => {
     })
 });
 
+
+function handleLevelPacket(pk, ws) {
+    ws.send(levelCache.toPacket());
+}
+
+function handleChunkPacket(pk, ws) {
+    let chunk = pk.body.chunk;
+    console.log(`Chunk (${chunk.x}, ${chunk.z}) recieved`);
+    levelCache.setChunk(chunk.x, chunk.z, chunk);
+}
+
 function handleSubscriptions(pk, ws) {
     if(subscribers.indexOf(ws) === -1) {
         subscribers.push(ws);
@@ -43,6 +59,7 @@ function handleSubscriptions(pk, ws) {
 const Handler = {
 
     registered: {
+        'level': Packet.Level,
         'chunk': Packet.Chunk,
         'ping': Packet.Ping,
         'subscribe': Packet.Subscribe,
@@ -79,6 +96,8 @@ const Handler = {
         if(!status) return false;
 
         // Do common actions
+        if(pk.type === 'level') return true; // Patch
+
         let encoded = $type.encode($type.decode(pk));
 
         if($type.bounce) {
