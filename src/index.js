@@ -1,0 +1,122 @@
+const WebSocket = require('ws');
+
+const wss = new WebSocket.Server({ port: 27095 });
+
+const subscribers = [];
+
+wss.on('connection', (ws) => {
+    console.log('Client connected');
+
+
+    ws.on('message', (data) => {
+        Handler._process(data, ws);
+    });
+
+    ws.on('close', () => {
+        console.log('Client disconnected');
+
+
+        let index = subscribers.indexOf(ws);
+        if(index !== -1) {
+            subscribers.splice(index, 1);
+        }
+    })
+});
+
+
+const Packet = {
+
+    Subscribe: {
+        decode: (pk) => {
+            return true;
+        },
+        encode: () => {
+            return Packet._encode('subscribe')
+        },
+        handle: (pk, ws) => {
+            if(subscribers.indexOf(ws) === -1) {
+                subscribers.push(ws);
+                console.log('Client subscribed to broadcasts');
+
+                return true;
+            }
+            console.log('Client tried subscribing twice, thats not allowed!');
+
+            return false;
+        }
+    },
+
+    Message: {
+        decode: (pk) => {
+            return pk.body.message;
+        },
+        encode: (message) => {
+            return Packet._encode('message', { message });
+        },
+        handle: (pk, ws) => {
+            console.log('Message: ' + Packet.Message.decode(pk));
+
+            Handler._broadcast(
+                Packet.Message.encode(
+                    Packet.Message.decode(pk)
+                )
+            );
+        }
+    },
+
+    _encode: (type, body = {}, extra = {}) => {
+        return JSON.stringify({ type, body, ...extra });
+    },
+
+    _decode: (data) => {
+        return JSON.parse(data);
+    }
+
+}
+
+const Handler = {
+
+    registered: {
+        'subscribe': Packet.Subscribe,
+        'message': Packet.Message,
+    },
+
+    _process: (data, ws) => {
+        let pk, $type;
+
+        try {
+            pk = Packet._decode(data);
+        } catch (e) {
+            console.error('Error decoding packet: ' + e);
+        }
+
+        if(!pk) return false;
+        if(!Handler._validate(pk, ws)) return false;
+
+        $type = Handler.registered[pk.type] ?? null;
+
+        if(!$type) {
+            console.error(`Packet '${pk.type}' type not registered`);
+            return false;
+        }
+
+        return $type.handle(pk, ws);
+    },
+
+    _validate: (packet, ws) => {
+        if (packet.type === undefined) {
+            console.error('Recieved packet with unknown type. Packet ignored!');
+
+            return false;
+        }
+
+        return true;
+    },
+
+    _broadcast: (packet) => {
+        subscribers.forEach(socket => {
+            socket.send(packet);
+        })
+    }
+
+}
