@@ -1,5 +1,19 @@
 const Packet = {
 
+    Chunk: {
+        broadcast: true,
+
+        decode: (pk) => {
+            return pk.body;
+        },
+        encode: (body) => {
+            return Packet._encode('chunk', body);
+        },
+        handle: (pk, ws) => {
+            return true;
+        }
+    },
+
     Ping: {
         bounce: true,
 

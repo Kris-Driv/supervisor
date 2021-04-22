@@ -43,6 +43,7 @@ function handleSubscriptions(pk, ws) {
 const Handler = {
 
     registered: {
+        'chunk': Packet.Chunk,
         'ping': Packet.Ping,
         'subscribe': Packet.Subscribe,
         'message': Packet.Message,
