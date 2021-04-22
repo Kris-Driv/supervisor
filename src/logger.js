@@ -8,16 +8,22 @@ function getTime() {
     return twoChar((new Date()).getHours()) + ":" + twoChar((new Date()).getMinutes()) + ":" + twoChar((new Date()).getSeconds());
 }
 
-module.exports = {
+const logger = {
+    _log: (text, prefix, color) => {
+        console.log(`${chalk.cyan(getTime())} ${color(`[${prefix}]: ${text}`)}`);
+    },
+      
     info: (text) => {
-        console.log(chalk.cyan(getTime() + " ") + chalk.yellow("[INFO]: " + text));
+        logger._log(text, "INFO", chalk.white);
     },
 
     notice: (text) => {
-        console.log(chalk.cyan(getTime() + " ") + chalk.magenta("[NOTICE]: " + text));
+        logger._log(text, "NOTICE", chalk.magenta);
     },
 
     error: (text) => {
-        console.log(chalk.cyan(getTime() + " ") + chalk.red("[ERROR]: " + text));
+        logger._log(text, "RED", chalk.red);
     }
 }
+
+module.exports = logger;
