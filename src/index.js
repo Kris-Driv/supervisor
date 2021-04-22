@@ -26,6 +26,22 @@ wss.on('connection', (ws) => {
 
 const Packet = {
 
+    Ping: {
+        decode: (pk) => {
+            return pk.body.time;
+        },
+        encode: (time) => {
+            return Packet._encode('ping', { time });
+        },
+        handle: (pk, ws) => {
+            ws.send(
+                Packet.Ping.encode(
+                    Packet.Ping.decode(pk)
+                )
+            )
+        }
+    },
+
     Subscribe: {
         decode: (pk) => {
             return true;
@@ -77,6 +93,7 @@ const Packet = {
 const Handler = {
 
     registered: {
+        'ping': Packet.Ping,
         'subscribe': Packet.Subscribe,
         'message': Packet.Message,
     },
