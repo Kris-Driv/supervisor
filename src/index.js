@@ -6,9 +6,12 @@ const Packet = require('./packet.js');
 
 const express = require("express");
 const app = express();
+
 app.use(express.static("web"));
-app.get("/",(req,res)=>{res.sendFile(__dirname+"/web/index.html")})
-app.listen(3000);
+app.get("/", (req, res) => { 
+    res.sendFile(__dirname + "/web/index.html") 
+});
+app.listen(8080);
 
 const wss = new WebSocket.Server({ port: 27095 });
 
@@ -25,7 +28,7 @@ wss.on('connection', (ws) => {
 
 
     ws.on('message', (data) => {
-        if(!Handler._process(data, ws)) {
+        if (!Handler._process(data, ws)) {
             logger.error('handling error detected');
         }
     });
@@ -35,7 +38,7 @@ wss.on('connection', (ws) => {
 
 
         let index = subscribers.indexOf(ws);
-        if(index !== -1) {
+        if (index !== -1) {
             subscribers.splice(index, 1);
         }
     })
@@ -53,7 +56,7 @@ function handleChunkPacket(pk, ws) {
 }
 
 function handleSubscriptions(pk, ws) {
-    if(subscribers.indexOf(ws) === -1) {
+    if (subscribers.indexOf(ws) === -1) {
         subscribers.push(ws);
         logger.info('Client subscribed to broadcasts');
 
@@ -87,35 +90,35 @@ const Handler = {
             logger.error('Error decoding packet: ' + e);
         }
 
-        if(!pk) return false;
-        if(!Handler._validate(pk, ws)) return false;
+        if (!pk) return false;
+        if (!Handler._validate(pk, ws)) return false;
 
         $type = Handler.registered[pk.type] ?? null;
 
-        if(!$type) {
+        if (!$type) {
             logger.error(`Packet '${pk.type}' type not registered`);
             return false;
         }
 
         let status = $type.handle(pk, ws);
 
-        if($type.listeners) {
+        if ($type.listeners) {
             $type.listeners.forEach(cb => {
                 cb(pk, ws);
             })
         }
 
-        if(!status) return false;
+        if (!status) return false;
 
         // Do common actions
-        if(pk.type === 'level') return true; // Patch
+        if (pk.type === 'level') return true; // Patch
 
         let encoded = Packet._encode(pk.type, pk.body);
 
-        if($type.bounce) {
+        if ($type.bounce) {
             ws.send(encoded);
         }
-        if($type.broadcast) {
+        if ($type.broadcast) {
             Handler._broadcast(encoded);
         }
 

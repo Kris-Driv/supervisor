@@ -5,6 +5,11 @@ var mapBufferImage;
 
 var drawOverlay = true;
 var drawPlayers = true;
+var drawDepth = true;
+
+var depthBrightness = 80;
+var depthBlendMode;
+var depthAlphaOffset = 5;
 
 const renderer = {
 
@@ -13,6 +18,8 @@ const renderer = {
         // Currently we're drawing 1600 chunks at about 0.3 Frames per second
         mapBufferImage = createGraphics(width, height);
         depthBufferImage = createGraphics(width, height);
+
+        depthBlendMode = BURN;
     },
 
     render: () => {
@@ -20,7 +27,12 @@ const renderer = {
         image(mapBufferImage, 0, 0, width, height);
 
         // And depth shading
-        image(depthBufferImage, 0, 0, width, height);
+        if (drawDepth) {
+            push();
+            blendMode(BURN);
+            image(depthBufferImage, 0, 0, width, height);
+            pop();
+        }
 
         // Render grid overlay
         if (drawOverlay) {
@@ -28,9 +40,9 @@ const renderer = {
             renderer.mouseCoordinates();
         }
 
-        if(drawPlayers) {
+        if (drawPlayers) {
             renderer.drawPlayers();
-        } 
+        }
     },
 
     renderChunk: (chunk) => {
@@ -42,7 +54,7 @@ const renderer = {
         mapBufferImage.noStroke();
         for (var x = 0; x < 16; x++) {
             for (var z = 0; z < 16; z++) {
-                blockId = layer[x][z];
+                blockId = Object.values(layer[x][z])[0];
 
                 mapBufferImage.fill(renderer.getBlockColor(blockId));
 
@@ -58,20 +70,36 @@ const renderer = {
     },
 
     renderChunkDepthBuffer: (chunk) => {
-        console.log(chunk);
         let y, alpha;
         let chunkX = chunk.x;
         let chunkZ = chunk.z;
-        
+
         depthBufferImage.noStroke();
         for (var x = 0; x < 16; x++) {
             for (var z = 0; z < 16; z++) {
-                y = random(60, 84); // Find a way to transfer real y value
+                y = Object.keys(chunk.layer[x][z])[0];
+                // Find a way to transfer real y value
                 // Calculate alpha based on the height
                 // map(value, start1, stop1, start2, stop2, [withinBounds])
-                alpha = map(y, 0, 256, 10, 170);
+                if (y <= 64) {
+                    if (y <= 60) {
+                        if (y <= 54) {
+                            alpha = map(y, 54, 20, 90, 160);
+                        } else {
+                            alpha = map(y, 60, 50, 68, 240);
+                        }
+                    } else {
+                        alpha = map(y, 64, 48, 68, 240);
+                    }
+                } else {
+                    if(y >= 90) {
+                        alpha = map(y, 90, 110, 55, 5);
+                    } else {
+                        alpha = map(y, 64, 90, 80, 70);
+                    }
+                }
 
-                depthBufferImage.fill(color(0, 0, 0, alpha));
+                depthBufferImage.fill(color(depthBrightness, depthBrightness, depthBrightness, alpha + depthAlphaOffset));
 
                 depthBufferImage.rect(
                     (chunkX * 16 * scl) + (x * scl),
@@ -110,7 +138,7 @@ const renderer = {
         fill('#FFF');
         textSize(12);
         let coord = canvasToWorld(mouseX, mouseY);
-        let txt = `[${coord[0]}, ${coord[1]}]`;
+        let txt = `[${coord[0]}, ${coord[2]}, ${coord[1]}]`;
         text(txt, mouseX + (txt.length * 12 / 5), mouseY);
     },
 
@@ -150,7 +178,7 @@ const renderer = {
     getBlockColor: (blockId) => {
         return renderer.blockColorMap[blockId] ?? ((id) => {
 
-            console.log('unknown block ' + id);
+            // console.log('unknown block ' + id);
             return 'red';
 
         })(blockId);

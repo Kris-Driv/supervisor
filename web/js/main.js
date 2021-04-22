@@ -22,8 +22,25 @@ function draw() {
 function canvasToWorld(x, y) {
     return [
         x * scl,
-        y * scl
+        y * scl,
+        // y value
+        (getWorldY(x, y))
     ];
+}
+
+function getWorldY(x, z) {
+    let cx = x >> 4;
+    let cz = z >> 4;
+    let rx = x % 16;
+    let rz = z % 16;
+    // console.log({x, z, cx, cz, rx, rz});
+    
+    let chunk = chunks[cx + ':' + cz] ?? null;
+    // console.log(chunk);
+    if(chunk) {
+        return Object.keys(chunk.layer[rx][rz])[0] ?? 255;
+    }
+    return 255;
 }
 
 function keyPressed() {
