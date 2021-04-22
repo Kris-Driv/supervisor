@@ -1,3 +1,5 @@
+const logger = require("./logger");
+
 const decode = (pk) => pk.body;
 
 const Packet = {
@@ -29,7 +31,7 @@ const Packet = {
             });
         },
         handle: (pk, ws) => {
-            console.log(`${pk.body.name} joined the game`);
+            logger.info(`${pk.body.name} joined the game`);
             return true;
         }
     },
@@ -45,7 +47,7 @@ const Packet = {
             });
         },
         handle: (pk, ws) => {
-            console.log(`${pk.body.name} left the game`);
+            logger.info(`${pk.body.name} left the game`);
             return true;
         }
     },
@@ -113,7 +115,7 @@ const Packet = {
             return Packet._encode('message', { message });
         },
         handle: (pk, ws) => {
-            console.log('Message: ' + Packet.Message.decode(pk));
+            logger.info('Message: ' + Packet.Message.decode(pk));
             return true;
         }
     },

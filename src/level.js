@@ -1,9 +1,10 @@
+const logger = require("./logger");
 const Packet = require("./packet");
 
 class Level {
 
     constructor(name = 'world') {
-        console.log(`Level cache for '${name}' initiated`);
+        logger.info(`Level cache for '${name}' initiated`);
 
         this.name = name;
         this.chunks = [];

@@ -1,3 +1,5 @@
+const logger = require('./logger.js');
+
 const WebSocket = require('ws');
 const Level = require('./level.js');
 const Packet = require('./packet.js');
@@ -18,7 +20,7 @@ wss.on('connection', (ws) => {
 
     ws.on('message', (data) => {
         if(!Handler._process(data, ws)) {
-            console.log('handling error detected');
+            logger.error('handling error detected');
         }
     });
 
@@ -47,11 +49,11 @@ function handleChunkPacket(pk, ws) {
 function handleSubscriptions(pk, ws) {
     if(subscribers.indexOf(ws) === -1) {
         subscribers.push(ws);
-        console.log('Client subscribed to broadcasts');
+        logger.info('Client subscribed to broadcasts');
 
         return true;
     }
-    console.log('Client tried subscribing twice, thats not allowed!');
+    logger.notice('Client tried subscribing twice, thats not allowed!');
 
     return false;
 }
@@ -76,7 +78,7 @@ const Handler = {
         try {
             pk = Packet._decode(data);
         } catch (e) {
-            console.error('Error decoding packet: ' + e);
+            logger.error('Error decoding packet: ' + e);
         }
 
         if(!pk) return false;
@@ -85,7 +87,7 @@ const Handler = {
         $type = Handler.registered[pk.type] ?? null;
 
         if(!$type) {
-            console.error(`Packet '${pk.type}' type not registered`);
+            logger.error(`Packet '${pk.type}' type not registered`);
             return false;
         }
 
@@ -116,7 +118,7 @@ const Handler = {
 
     _validate: (packet, ws) => {
         if (packet.type === undefined) {
-            console.error('Recieved packet with unknown type. Packet ignored!');
+            logger.error('Recieved packet with unknown type. Packet ignored!');
 
             return false;
         }
