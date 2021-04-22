@@ -1,9 +1,58 @@
+const decode = (pk) => pk.body;
+
 const Packet = {
 
-    Level: {
-        decode: (pk) => {
-            return pk.body;
+    EntityPosition: {
+        broadcast: true,
+
+        decode,
+        encode: (eid, position) => {
+            return Packet._encode('entity.position', {
+                eid,
+                position
+            });
         },
+        handle: (pk, ws) => {
+            return true;
+        }
+    },
+
+    PlayerJoin: {
+        broadcast: true,
+
+        decode,
+        encode: (eid, name, position) => {
+            return Packet._encode('player.join', {
+                eid,
+                name,
+                position
+            });
+        },
+        handle: (pk, ws) => {
+            console.log(`${pk.body.name} joined the game`);
+            return true;
+        }
+    },
+
+    PlayerLeave: {
+        broadcast: true,
+
+        decode,
+        encode: (eid, name) => {
+            return Packet._encode('player.leave', {
+                eid,
+                name,
+            });
+        },
+        handle: (pk, ws) => {
+            console.log(`${pk.body.name} left the game`);
+            return true;
+        }
+    },
+
+    Level: {
+        decode,
+
         encode: (name, chunks) => {
             return Packet._encode('level', {
                 name,
@@ -18,9 +67,8 @@ const Packet = {
     Chunk: {
         broadcast: true,
 
-        decode: (pk) => {
-            return pk.body;
-        },
+        decode,
+
         encode: (body) => {
             return Packet._encode('chunk', body);
         },

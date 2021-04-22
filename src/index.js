@@ -13,7 +13,7 @@ Packet.Chunk.listeners = [handleChunkPacket];
 Packet.Level.listeners = [handleLevelPacket];
 
 wss.on('connection', (ws) => {
-    console.log('Client connected');
+    // console.log('Client connected');
 
 
     ws.on('message', (data) => {
@@ -23,7 +23,7 @@ wss.on('connection', (ws) => {
     });
 
     ws.on('close', () => {
-        console.log('Client disconnected');
+        // console.log('Client disconnected');
 
 
         let index = subscribers.indexOf(ws);
@@ -40,7 +40,7 @@ function handleLevelPacket(pk, ws) {
 
 function handleChunkPacket(pk, ws) {
     let chunk = pk.body.chunk;
-    console.log(`Chunk (${chunk.x}, ${chunk.z}) recieved`);
+    // console.log(`Chunk (${chunk.x}, ${chunk.z}) recieved`);
     levelCache.setChunk(chunk.x, chunk.z, chunk);
 }
 
@@ -59,6 +59,10 @@ function handleSubscriptions(pk, ws) {
 const Handler = {
 
     registered: {
+        'entity.position': Packet.EntityPosition,
+        'player.join': Packet.PlayerJoin,
+        'player.leave': Packet.PlayerLeave,
+
         'level': Packet.Level,
         'chunk': Packet.Chunk,
         'ping': Packet.Ping,
@@ -98,7 +102,7 @@ const Handler = {
         // Do common actions
         if(pk.type === 'level') return true; // Patch
 
-        let encoded = $type.encode($type.decode(pk));
+        let encoded = Packet._encode(pk.type, pk.body);
 
         if($type.bounce) {
             ws.send(encoded);
