@@ -4,6 +4,12 @@ const WebSocket = require('ws');
 const Level = require('./level.js');
 const Packet = require('./packet.js');
 
+const express = require("express");
+const app = express();
+app.use(express.static("web"));
+app.get("/",(req,res)=>{res.sendFile(__dirname+"/web/index.html")})
+app.listen(3000);
+
 const wss = new WebSocket.Server({ port: 27095 });
 
 const subscribers = [];
