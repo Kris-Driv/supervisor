@@ -16,6 +16,10 @@ function recieveChunks(chunksBase64) {
     for(let x = chunks.length - 1; x >= 0; x--) {
         for(let z = chunks[x].length - 1; z >= 0; z--) {
             let chunk = chunks[x][z];
+            if(!chunk) {
+                console.error(`no chunk at x: ${x}, z: ${z}`);
+                continue;
+            }
 
             recieveChunk(chunk);
         }

@@ -4,6 +4,7 @@ const WebSocket = require('ws');
 const Level = require('./level.js');
 const Packet = require('./packet.js');
 const Input = require('./input.js');
+const fs = require("fs");
 
 const express = require("express");
 const Command = require('./command.js');
@@ -22,6 +23,9 @@ const wss = new WebSocket.Server({ port: 27095 });
 const subscribers = [];
 
 const levelCache = new Level('pm_level1');
+if (!fs.existsSync("cache")){
+    fs.mkdirSync("cache");
+}
 
 Packet.Subscribe.listeners = [handleSubscriptions];
 Packet.Chunk.listeners = [handleChunkPacket];
@@ -78,6 +82,7 @@ Object.keys(Packet).filter(i=> !i.startsWith("_")).forEach(i=> {
 
 const Handler = {
 
+    cache: levelCache,
     registered: reg,
 
     _process: (data, ws) => {

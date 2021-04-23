@@ -8,6 +8,12 @@ class Level {
 
         this.name = name;
         this.chunks = [];
+
+        this.cachedPacket = null;
+    }
+
+    clearChunks() {
+        this.chunks = [];
     }
 
     setChunk(x, z, chunk) {
@@ -15,6 +21,8 @@ class Level {
             this.chunks[x] = [];
         }
         this.chunks[x][z] = chunk;
+
+        this.cachedPacket = null;
     }
 
     setChunks(chunks) {
@@ -24,7 +32,12 @@ class Level {
     }
 
     toPacket() {
-        return Packet.Level.encode(this.name, this.chunks);
+        if(this.cachedPacket) {
+            return this.cachedPacket;
+        }
+
+        this.cachedPacket = Packet.Level.encode(this.name, this.chunks);
+        return this.cachedPacket;
     }
 
 }

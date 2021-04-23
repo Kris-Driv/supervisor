@@ -13,6 +13,8 @@ var depthAlphaOffset = 5;
 
 const renderer = {
 
+    scl: scl,
+
     setup: () => {
         // Create image buffer, this should be huge performance improvement
         // Currently we're drawing 1600 chunks at about 0.3 Frames per second
@@ -128,8 +130,8 @@ const renderer = {
 
     gridOverlay: () => {
         var chunkSize = 16 * scl;
-        var xSize = floor(width / 16)
-        var zSize = floor(height / 16);
+        var xSize = floor(width / chunkSize)
+        var zSize = floor(height / chunkSize);
 
         noFill();
         stroke('#000');
@@ -194,6 +196,10 @@ const renderer = {
         '172': '#c97947',
         // Acacia leaves
         '161': '#78e08f',
+        // Ice
+        '79': '#74b9ff',
+        // Packed ice (darker?)
+        '174': '#0984e3',
     },
 
     // Grass color

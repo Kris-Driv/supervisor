@@ -19,13 +19,11 @@ function draw() {
     renderer.render();
 }
 
-function canvasToWorld(x, y) {
-    return [
-        x * scl,
-        y * scl,
-        // y value
-        (getWorldY(x, y))
-    ];
+function canvasToWorld(canvasX, canvasY) {
+    var worldX = canvasX * scl;
+    var worldZ = canvasY * scl;
+    var worldY = getWorldY(worldX, worldZ);
+    return [worldX, worldZ, worldY];
 }
 
 function getWorldY(x, z) {
