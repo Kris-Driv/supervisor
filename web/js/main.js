@@ -9,7 +9,7 @@ function setup() {
 
     // Prepare
     renderer.setup();
-    UI.setup();
+    // UI.setup();
 
     // Create connection with pocketcore
     connectPocketCore('ws://localhost:27095');
@@ -29,6 +29,8 @@ function controlZoom(event) {
 
     renderer.scl += zoom;
     renderer.scl = max(0.8, min(renderer.scl, 5));
+
+    event.preventDefault();
 }
 
 function canvasToWorld(canvasX, canvasY) {
@@ -108,4 +110,14 @@ function getBlockIdAt(x, z) {
 
 function keyPressed() {
     if(keyCode === 32) drawOverlay = !drawOverlay;
+}
+
+function requestLevel() {
+    socket.send('{"type": "level"}');
+}
+
+function clearChunks() {
+    chunks = [];
+    responsiveMapBufferImage = createGraphics(width, height);
+    depthBufferImage = createGraphics(width, height);
 }

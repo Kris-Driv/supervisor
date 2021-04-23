@@ -23,6 +23,38 @@
 </head>
 
 <body>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        #control-bar {
+            height: 46px;
+            display: absolute;
+            top: 0;
+            left: 0;
+            background-color: #515151;
+            padding: 0 2rem 0 2rem;
+        }
+        .button-wrapper {
+            display: flex;
+            height: 100%;
+            justify-content: start;
+            align-items: center;
+        }
+        button {
+            padding: 4px 12px;
+        }
+    </style>
+    <header>
+        <div id="control-bar">
+            <div class="button-wrapper">
+                <button onclick="requestLevel()">Request Level</button>
+                <button onclick="clearChunks()">Clear Chunks</button>
+            </div>
+        </div>
+    </header>
 </body>
 
 </html>
