@@ -35,8 +35,8 @@ const renderer = {
 
         depthBlendMode = BURN;
 
-        renderer.offsetX = width / 2;
-        renderer.offsetY = height / 2;
+        // renderer.offsetX = width / 2;
+        // renderer.offsetY = height / 2;
     },
 
     render: () => {
@@ -74,7 +74,7 @@ const renderer = {
     renderChunk: (chunk) => {
         responsiveMapBufferImage.fill('red');
 
-        let coords = worldToCanvas(chunk.x << 4, chunk.z << 4);
+        let coords = worldToBuffer(chunk.x << 4, chunk.z << 4);
         let cx = coords[0];
         let cy = coords[1];
         // responsiveMapBufferImage.rect(coords[0], coords[1], 16, 16);
@@ -153,25 +153,42 @@ const renderer = {
 
     gridOverlay: () => {
         var chunkSize = 16 * (renderer.scl);
+        var xOff = (renderer.offsetX + renderer.tempOffsetX) % chunkSize;
+        var yOff = (renderer.offsetY + renderer.tempOffsetY) % chunkSize;
         var xSize = floor(width / chunkSize) + 1;
         var zSize = floor(height / chunkSize) + 1;
 
         noFill();
-        stroke('#fff');
+        stroke(40);
         strokeWeight(1);
+
+        
 
         for (x = 0; x < xSize; x++) {
             for (z = 0; z < zSize; z++) {
-                rect(x * chunkSize, z * chunkSize, chunkSize, chunkSize);
+                rect(x * chunkSize + xOff, z * chunkSize + yOff, chunkSize, chunkSize);
             }
         }
+    },
+
+    resetOffsets: () => {
+        renderer.offsetX = 0;
+        renderer.offsetY = 0;
+        renderer.tempOffsetX = 0;
+        renderer.tempOffsetY = 0;
     },
 
     drawPlayers: () => {
         noStroke();
         fill('red');
         players.forEach(player => {
-            ellipse(player.position.x, player.position.y, 6, 6);
+            let coords = worldToCanvas(player.position.x, player.position.z);
+
+            ellipse(
+                coords[0] + renderer.offsetX + renderer.tempOffsetX, 
+                coords[1] + renderer.offsetY + renderer.tempOffsetY, 
+                
+                6, 6);
         });
     },
 
@@ -182,7 +199,7 @@ const renderer = {
         let coord = canvasToWorld(mouseX, mouseY);
         let txt = `[${coord[0]}, ${coord[2]}, ${coord[1]}]`;
         text(txt, mouseX + (txt.length * 12 / 5), mouseY);
-        let bid = getBlockIdAt(mouseX, mouseY);
+        let bid = getBlockIdAt(coord[0], coord[1]);
         if(bid) {
             let txt = `[Block ID: ${bid}]`;
             text(txt, mouseX + (txt.length * 12 / 5), mouseY + 18);

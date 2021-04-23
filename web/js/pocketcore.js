@@ -27,7 +27,7 @@ function handlePocketcorePacket(event) {
             break;
         case 'chunk':
             recieveChunk(response.body.chunk);
-            // console.log('Recieved chunkX: ' + response.body.chunk.x + ', chunkZ: ' + response.body.chunk.z);
+            console.log('Recieved chunkX: ' + response.body.chunk.x + ', chunkZ: ' + response.body.chunk.z);
             break;
 
         case 'level':
@@ -49,8 +49,6 @@ function handlePocketcorePacket(event) {
             break;
 
         case 'player.leave':
-            console.log('Player ' + response.body.name + ' has left. Reason: '.response.body.reason);
-
             removePlayer(response.body.eid);
             break;
 

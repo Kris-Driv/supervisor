@@ -5,6 +5,7 @@ function setup() {
     var x = (windowWidth - width) / 2;
     var y = (windowHeight - height) / 2;
     cnv.position(x, y);
+    cnv.mouseWheel(controlZoom);
 
     // Prepare
     renderer.setup();
@@ -19,23 +20,34 @@ function setup() {
 function draw() {
     background(51);
 
-    UI.update();
+    // UI.update();
     renderer.render();
+}
+
+function controlZoom(event) {
+    let zoom = event.deltaY / 100;
+
+    renderer.scl += zoom;
+    renderer.scl = max(0.8, min(renderer.scl, 5));
 }
 
 function canvasToWorld(canvasX, canvasY) {
     return [
-        floor(canvasX * (1 / renderer.scl)),
-        floor(canvasY * (1 / renderer.scl)),
+        floor((canvasX - renderer.offsetX) * (1 / renderer.scl)),
+        floor((canvasY - renderer.offsetY) * (1 / renderer.scl)),
         getWorldY(canvasX, canvasY)
     ];
 }
 
 function worldToCanvas(worldX, worldZ) {
     return [
-        worldX, //* renderer.scl,
-        worldZ //* renderer.scl
+        (worldX * renderer.scl),
+        (worldZ * renderer.scl)
     ];
+}
+
+function worldToBuffer(worldX, worldZ) {
+    return [worldX, worldZ];
 }
 
 function getWorldY(x, z) {
