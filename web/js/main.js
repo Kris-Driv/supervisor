@@ -38,9 +38,24 @@ function getWorldY(x, z) {
     let chunk = chunks[cx + ':' + cz] ?? null;
     // console.log(chunk);
     if(chunk) {
-        return Object.keys(chunk.layer[rx][rz])[0] ?? 255;
+        return Object.keys(chunk.layer[rx][rz] ?? [])[0] ?? 255;
     }
     return 255;
+}
+
+function getBlockIdAt(x, z) {
+    let cx = x >> 4;
+    let cz = z >> 4;
+    let rx = x % 16;
+    let rz = z % 16;
+    // console.log({x, z, cx, cz, rx, rz});
+    
+    let chunk = chunks[cx + ':' + cz] ?? null;
+    // console.log(chunk);
+    if(chunk) {
+        return Object.values(chunk.layer[rx][rz] ?? [])[0] ?? null;
+    }
+    return null;
 }
 
 function keyPressed() {

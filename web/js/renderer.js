@@ -92,10 +92,26 @@ const renderer = {
                         alpha = map(y, 64, 48, 68, 240);
                     }
                 } else {
-                    if(y >= 90) {
-                        alpha = map(y, 90, 110, 55, 5);
+                    if (y >= 90) {
+                        if(y >= 91 && y <= 92) {
+                            alpha = map(y, 91, 92, 10, 30);
+                        } else {
+                            alpha = map(y, 90, 110, 55, 5);
+                        }
                     } else {
-                        alpha = map(y, 64, 90, 80, 70);
+                        if (y >= 72 && y <= 84) {
+                            if(y >= 74 && y <= 75) {
+                                alpha = map(y, 74, 75, 30, 60);
+                            } else {
+                                alpha = map(y, 72, 84, 140, 90);
+                            }
+                        } else {
+                            if(y >= 87 && y <= 89) {
+                                alpha = map(y, 87, 89, 30, 60);
+                            } else {
+                                alpha = map(y, 64, 90, 80, 70);
+                            }
+                        }
                     }
                 }
 
@@ -140,17 +156,22 @@ const renderer = {
         let coord = canvasToWorld(mouseX, mouseY);
         let txt = `[${coord[0]}, ${coord[2]}, ${coord[1]}]`;
         text(txt, mouseX + (txt.length * 12 / 5), mouseY);
+        let bid = getBlockIdAt(mouseX, mouseY);
+        if(bid) {
+            let txt = `[Block ID: ${bid}]`;
+            text(txt, mouseX + (txt.length * 12 / 5), mouseY + 18);
+        }
     },
 
     blockColorMap: {
         // Grass
-        '2': '#00b894',
+        // '2': '#00b894',
         // Snow
         '78': '#dfe6e9',
         // Stone
         '1': '#636e72',
         // Some plants
-        '31': '#78e08f',
+        // '31': '#78e08f',
         // Oak leaves
         '18': '#009432',
         // Water
@@ -158,28 +179,31 @@ const renderer = {
         // Sand
         '12': '#ffeaa7',
         // Dead bush
-        '31': '#cc8e35',
+        //'31': '#cc8e35',
         // Dirt
         '3': '#f0932b',
         // Pink clay
         '159': '#edcecc',
         // Poppy
-        '38': '#8a140c',
+        //'38': '#8a140c',
         // Brown mushroom
-        '39': '#cc8d60',
+        //'39': '#cc8d60',
         // Sunflower
-        '175': '#ffe100',
+        //'175': '#ffe100',
         // Hardened Clay
         '172': '#c97947',
         // Acacia leaves
         '161': '#78e08f',
     },
 
+    // Grass color
+    fallbackBlockColor: '#00b894',
+
     getBlockColor: (blockId) => {
         return renderer.blockColorMap[blockId] ?? ((id) => {
 
             // console.log('unknown block ' + id);
-            return 'red';
+            return renderer.fallbackBlockColor;
 
         })(blockId);
     }
