@@ -6,6 +6,7 @@ const Packet = require('./packet.js');
 const Input = require('./input.js');
 
 const express = require("express");
+const Command = require('./command.js');
 const app = express();
 
 app.use(express.static("web"));
@@ -70,9 +71,11 @@ function handleSubscriptions(pk, ws) {
     return false;
 }
 const reg = {};
+
 Object.keys(Packet).filter(i=> !i.startsWith("_")).forEach(i=> {
     reg[Packet[i].name] = Packet[i];
 })
+
 const Handler = {
 
     registered: reg,
@@ -106,9 +109,6 @@ const Handler = {
 
         if (!status) return false;
 
-        // Do common actions
-        if (pk.type === 'level') return true; // Patch
-
         let encoded = Packet._encode(pk.type, pk.body);
 
         if ($type.bounce) {
@@ -138,3 +138,5 @@ const Handler = {
     }
 
 }
+
+Command.handler = Handler;
