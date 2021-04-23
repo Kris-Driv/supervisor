@@ -1,4 +1,4 @@
-var scl = 5;
+var scl = 1;
 
 var depthBufferImage;
 var mapBufferImage;
@@ -13,7 +13,9 @@ var depthAlphaOffset = 5;
 
 const renderer = {
 
-    scl: scl,
+    scl: function(){
+        return scl;
+    },
 
     setup: () => {
         // Create image buffer, this should be huge performance improvement
