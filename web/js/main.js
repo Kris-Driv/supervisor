@@ -46,7 +46,7 @@ function getWorldY(x, z) {
     let chunk = chunks[cx + ':' + cz] ?? null;
     // console.log(chunk);
     if(chunk) {
-        return Object.keys(chunk.layer[rx][rz] ?? [])[0] ?? 255;
+        return Object.keys(chunk.layer[Math.floor(rx)][Math.floor(rz)] ?? [])[0] ?? 255;
     }
     return 255;
 }
@@ -61,7 +61,7 @@ function getBlockIdAt(x, z) {
     let chunk = chunks[cx + ':' + cz] ?? null;
     // console.log(chunk);
     if(chunk) {
-        return Object.values(chunk.layer[rx][rz] ?? [])[0] ?? null;
+        return Object.values(chunk.layer[Math.floor(rx)][Math.floor(rz)] ?? [])[0] ?? null;
     }
     return null;
 }
