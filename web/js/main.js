@@ -20,10 +20,18 @@ function draw() {
 }
 
 function canvasToWorld(canvasX, canvasY) {
-    var worldX = canvasX * scl;
-    var worldZ = canvasY * scl;
-    var worldY = getWorldY(worldX, worldZ);
-    return [worldX, worldZ, worldY];
+    return [
+        floor(canvasX * (1 / renderer.scl)),
+        floor(canvasY * (1 / renderer.scl)),
+        getWorldY(canvasX, canvasY)
+    ];
+}
+
+function worldToCanvas(worldX, worldZ) {
+    return [
+        floor(worldX * renderer.scl),
+        floor(worldZ * renderer.scl)
+    ];
 }
 
 function getWorldY(x, z) {

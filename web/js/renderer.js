@@ -1,4 +1,4 @@
-var scl = 1;
+var scl = 5;
 
 var depthBufferImage;
 var mapBufferImage;
@@ -134,7 +134,8 @@ const renderer = {
         var zSize = floor(height / chunkSize);
 
         noFill();
-        stroke('#000');
+        stroke('#fff');
+        strokeWeight(1);
 
         for (x = 0; x < xSize; x++) {
             for (z = 0; z < zSize; z++) {
