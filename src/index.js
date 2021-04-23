@@ -3,6 +3,7 @@ const logger = require('./logger.js');
 const WebSocket = require('ws');
 const Level = require('./level.js');
 const Packet = require('./packet.js');
+const Input = require('./input.js');
 
 const express = require("express");
 const app = express();
@@ -12,6 +13,8 @@ app.get("/", (req, res) => {
     res.sendFile(__dirname + "/web/index.html") 
 });
 app.listen(8080);
+
+Input.start();
 
 const wss = new WebSocket.Server({ port: 27095 });
 
