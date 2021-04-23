@@ -1,3 +1,5 @@
+var anchor;
+
 function setup() {
     var cnv = createCanvas(640, 520);
     var x = (windowWidth - width) / 2;
@@ -31,8 +33,8 @@ function canvasToWorld(canvasX, canvasY) {
 
 function worldToCanvas(worldX, worldZ) {
     return [
-        floor(worldX * renderer.scl),
-        floor(worldZ * renderer.scl)
+        worldX, //* renderer.scl,
+        worldZ //* renderer.scl
     ];
 }
 
@@ -49,6 +51,32 @@ function getWorldY(x, z) {
         return Object.keys(chunk.layer[Math.floor(rx)][Math.floor(rz)] ?? [])[0] ?? 255;
     }
     return 255;
+}
+
+function mousePressed() {
+    anchor = new p5.Vector(mouseX, mouseY);
+}
+
+function mouseDragged() {
+    if ((mouseX <= width && mouseX >= 0 && mouseY <= height && mouseY >= 0) === false) {
+        mouseReleased();
+        return;
+    }
+
+    let currentPos = new p5.Vector(mouseX, mouseY);
+    let d = currentPos.sub(anchor);
+
+    renderer.tempOffsetX = d.x;//(d.x * renderer.scl);
+    renderer.tempOffsetY = d.y;//(d.y * renderer.scl);
+}
+
+function mouseReleased() {
+    anchor = null;
+
+    renderer.offsetX += renderer.tempOffsetX;
+    renderer.offsetY += renderer.tempOffsetY;
+    renderer.tempOffsetX = 0;
+    renderer.tempOffsetY = 0;
 }
 
 function getBlockIdAt(x, z) {

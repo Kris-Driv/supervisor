@@ -1,7 +1,8 @@
 var scl = 5;
 
 var depthBufferImage;
-var mapBufferImage;
+var responsiveMapBufferImage;
+var bigMapBufferImage;
 
 var drawOverlay = true;
 var drawPlayers = true;
@@ -14,19 +15,42 @@ var depthAlphaOffset = 5;
 const renderer = {
 
     scl: scl,
+    topScl: 0.5,
+
+    offsetX: 0,
+    offsetY: 0,
+
+    tempOffsetX: 0,
+    tempOffsetY: 0,
 
     setup: () => {
         // Create image buffer, this should be huge performance improvement
         // Currently we're drawing 1600 chunks at about 0.3 Frames per second
-        mapBufferImage = createGraphics(width, height);
+        responsiveMapBufferImage = createGraphics(width, height);
+        bigMapBufferImage = createGraphics(width, height);
         depthBufferImage = createGraphics(width, height);
 
+        responsiveMapBufferImage.noStroke();
+        bigMapBufferImage.noStroke();
+
         depthBlendMode = BURN;
+
+        renderer.offsetX = width / 2;
+        renderer.offsetY = height / 2;
     },
 
     render: () => {
         // Draw Map buffer
-        image(mapBufferImage, 0, 0, width, height);
+        image(responsiveMapBufferImage, 
+            // Position
+            renderer.offsetX + renderer.tempOffsetX, 
+            renderer.offsetY + renderer.tempOffsetY, 
+            // Size (zoom etc.)
+            width * renderer.scl, 
+            height * renderer.scl
+        );
+
+        image(bigMapBufferImage, width - 100, height - 100, 100, 100);
 
         // And depth shading
         if (drawDepth) {
@@ -48,27 +72,27 @@ const renderer = {
     },
 
     renderChunk: (chunk) => {
-        let blockId;
-        let chunkX = chunk.x;
-        let chunkZ = chunk.z;
-        let layer = chunk.layer;
+        responsiveMapBufferImage.fill('red');
 
-        mapBufferImage.noStroke();
+        let coords = worldToCanvas(chunk.x << 4, chunk.z << 4);
+        let cx = coords[0];
+        let cy = coords[1];
+        // responsiveMapBufferImage.rect(coords[0], coords[1], 16, 16);
+
         for (var x = 0; x < 16; x++) {
             for (var z = 0; z < 16; z++) {
-                blockId = Object.values(layer[x][z])[0];
+                let blockId = Object.values(chunk.layer[x][z])[0];
+                let blockColor = renderer.getBlockColor(blockId);
 
-                mapBufferImage.fill(renderer.getBlockColor(blockId));
+                responsiveMapBufferImage.fill(blockColor);
+                responsiveMapBufferImage.rect(cx + x, cy + z, 1);
 
-                mapBufferImage.rect(
-                    (chunkX * 16 * renderer.scl) + (x * renderer.scl),
-                    (chunkZ * 16 * renderer.scl) + (z * renderer.scl),
-                    renderer.scl, renderer.scl
-                );
+                bigMapBufferImage.fill(blockColor)
+                bigMapBufferImage.rect(cx + x, cy + z, renderer.scl);
             }
         }
 
-        renderer.renderChunkDepthBuffer(chunk);
+        // renderer.renderChunkDepthBuffer(chunk);
     },
 
     renderChunkDepthBuffer: (chunk) => {
@@ -80,7 +104,6 @@ const renderer = {
         for (var x = 0; x < 16; x++) {
             for (var z = 0; z < 16; z++) {
                 y = Object.keys(chunk.layer[x][z])[0];
-                // Find a way to transfer real y value
                 // Calculate alpha based on the height
                 // map(value, start1, stop1, start2, stop2, [withinBounds])
                 if (y <= 64) {
@@ -129,9 +152,9 @@ const renderer = {
     },
 
     gridOverlay: () => {
-        var chunkSize = 16 * renderer.scl;
-        var xSize = floor(width / chunkSize)
-        var zSize = floor(height / chunkSize);
+        var chunkSize = 16 * (renderer.scl);
+        var xSize = floor(width / chunkSize) + 1;
+        var zSize = floor(height / chunkSize) + 1;
 
         noFill();
         stroke('#fff');
