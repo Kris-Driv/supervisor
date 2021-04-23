@@ -6,6 +6,7 @@ function setup() {
 
     // Prepare
     renderer.setup();
+    UI.setup();
 
     // Create connection with pocketcore
     connectPocketCore('ws://localhost:27095');
@@ -16,6 +17,7 @@ function setup() {
 function draw() {
     background(51);
 
+    UI.update();
     renderer.render();
 }
 

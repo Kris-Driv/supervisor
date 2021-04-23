@@ -5,7 +5,7 @@ var mapBufferImage;
 
 var drawOverlay = true;
 var drawPlayers = true;
-var drawDepth = true;
+var drawDepth = false;
 
 var depthBrightness = 80;
 var depthBlendMode;
@@ -32,7 +32,7 @@ const renderer = {
         if (drawDepth) {
             push();
             blendMode(BURN);
-            image(depthBufferImage, 0, 0, width, height);
+            image(depthBufferImage, 0, 0, width * renderer.scl, height * renderer.scl);
             pop();
         }
 
@@ -61,9 +61,9 @@ const renderer = {
                 mapBufferImage.fill(renderer.getBlockColor(blockId));
 
                 mapBufferImage.rect(
-                    (chunkX * 16 * scl) + (x * scl),
-                    (chunkZ * 16 * scl) + (z * scl),
-                    scl, scl
+                    (chunkX * 16 * renderer.scl) + (x * renderer.scl),
+                    (chunkZ * 16 * renderer.scl) + (z * renderer.scl),
+                    renderer.scl, renderer.scl
                 );
             }
         }
@@ -129,7 +129,7 @@ const renderer = {
     },
 
     gridOverlay: () => {
-        var chunkSize = 16 * scl;
+        var chunkSize = 16 * renderer.scl;
         var xSize = floor(width / chunkSize)
         var zSize = floor(height / chunkSize);
 
