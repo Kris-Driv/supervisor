@@ -1,26 +1,20 @@
 var anchor;
+const defaultAddress = 'ws://localhost:27095';
 
 function setup() {
-    var cnv = createCanvas(640, 520);
-    var x = (windowWidth - width) / 2;
-    var y = (windowHeight - height) / 2;
-    cnv.position(x, y);
+    var cnv = createCanvas(920, 640);
+    cnv.parent(document.getElementById('canvas-container'));
     cnv.mouseWheel(controlZoom);
 
     // Prepare
     renderer.setup();
-    // UI.setup();
-
-    // Create connection with pocketcore
-    connectPocketCore('ws://localhost:27095');
-
-    if(!socket) noLoop();
+    UI.setup();
 }
 
 function draw() {
-    background(51);
+    background('#1f1f1f');
 
-    // UI.update();
+    UI.update();
     renderer.render();
 }
 
@@ -109,7 +103,10 @@ function getBlockIdAt(x, z) {
 }
 
 function keyPressed() {
-    if(keyCode === 32) drawOverlay = !drawOverlay;
+    if(keyCode === 32) {
+        drawOverlay = !drawOverlay;
+        return false;
+    }
 }
 
 function requestLevel() {

@@ -22,39 +22,195 @@
 
 </head>
 
-<body>
+<body onload="setupInterface()">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            color: #fff;
         }
+
+        body,
+        html,
+        main {
+            width: 100%;
+            height: 100%;
+            background-color: #212121;
+
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        }
+
+        #connection-light {
+            width: 8px;
+            height: 8px;
+            margin-left: 12px;
+            border: 1px solid #1a1a1a;
+            border-radius: 50%;
+            background-color: red;
+        }
+
+        .light-green {
+            background-color: green !important;
+        }
+
         #control-bar {
             height: 46px;
-            display: absolute;
+            display: fixed;
+            flex: 1;
             top: 0;
             left: 0;
-            background-color: #515151;
+            background-color: #212121;
             padding: 0 2rem 0 2rem;
+            border-bottom: 1px solid #3d3d3d;
         }
+
         .button-wrapper {
             display: flex;
             height: 100%;
             justify-content: start;
             align-items: center;
         }
+
+        .right-inputs {
+            display: flex;
+            height: 100%;
+            justify-content: start;
+            align-items: center;
+        }
+
+        .flex-container {
+            display: flex;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        .center {
+            justify-content: center !important;
+            align-items: center;
+        }
+
+        .flow-col {
+            flex-flow: column;
+        }
+
+        input,
+        button {
+            border: 1px solid #212121;
+            background-color: #3d3d3d;
+        }
+
         button {
             padding: 4px 12px;
+        }
+
+        button:hover {
+            cursor: pointer;
+        }
+
+        input[type=text] {
+            padding: 4px 12px;
+        }
+
+        canvas {
+            border: 1px solid #212121;
+        }
+
+        #canvas-info {
+            margin-bottom: 5px;
+        }
+
+        #console-container {
+            width: 100%;
+            border: 1px solid #3d3d3d;
+            height: 140px;
+            overflow-y: scroll;
+        }
+
+        #console-messages {
+            list-style: none;
+            height: 100%;
+            color: #fbfbfb;
+            font-size: 12px;
+            overflow-y: scroll;
+        }
+
+        #console-messages li {
+            padding: 5px 9px;
+            border-bottom: 1px solid #3d3d3d;
+        }
+
+        #console-control-bar {
+            width: 100%;
+            height: 45px;
+            display: flex;
+            justify-content: flex-end;
+            padding: 8px 0px;
+        }
+
+        #console-input {
+            width: 100%;
         }
     </style>
     <header>
         <div id="control-bar">
-            <div class="button-wrapper">
-                <button onclick="requestLevel()">Request Level</button>
-                <button onclick="clearChunks()">Clear Chunks</button>
+            <div class="flex-container">
+                <div class="button-wrapper">
+                    <button onclick="requestLevel()">Request Level</button>
+                    <button onclick="clearChunks()">Clear Chunks</button>
+                </div>
+                <div class="right-inputs">
+                    <input type="text" name="address" id="address">
+                    <button
+                        id="connect-button"
+                        onclick="connectPocketCore(document.getElementById('address').value, handleSocketOpen, handleSocketClose)">Connect</button>
+                    <span id="connection-light"></span>
+                </div>
             </div>
         </div>
     </header>
+    <main>
+        <div class="flex-container center flow-col">
+            <div class="column">
+                <div id="canvas-info">
+                    <span id="fps-counter"></span>
+                </div>
+                <div id="canvas-container">
+                    <!-- Here Goes Canvas -->
+                </div>
+                <div id="console-container">
+                    <ol id="console-messages">
+                        <!-- Here Goes Console Messages -->
+                    </ol>
+                </div>
+                <div id="console-control-bar">
+                    <input type="text" id="console-input" name="console-input">
+                    <button onclick="UI.clearConsole()">Clear</button>
+                </div>
+            </div>
+        </div>
+    </main>
 </body>
+
+<script>
+    function setupInterface() {
+
+        document.getElementById('address').value = defaultAddress;
+
+        if (socket) {
+            handleSocketOpen();
+        }
+
+        document.getElementById('connect-button').click();
+    }
+
+    function handleSocketClose() {
+        document.getElementById('connection-light').classList.remove('light-green');
+    }
+
+    function handleSocketOpen() {
+        document.getElementById('connection-light').classList.add('light-green');
+    }
+</script>
 
 </html>

@@ -1,6 +1,12 @@
 var socket = null;
 
-function connectPocketCore(address) {
+function connectPocketCore(address, onopen, onclose) {
+    // Close previous
+    if(socket) {
+        socket.close();
+        socket = null;
+    }
+
     // Create WebSocket connection.
     socket = new WebSocket(address);
 
@@ -8,8 +14,19 @@ function connectPocketCore(address) {
     socket.addEventListener('open', function (event) {
         socket.send(JSON.stringify({ 'type': 'subscribe' }));
 
-        console.log('connected to pocketcore');
+        UI.log("Connected to " + address + " successfully!");
     });
+
+    socket.addEventListener('close', () => {
+        UI.log('Socket closed');
+    });
+
+    if(onopen) {
+        socket.addEventListener('open', onopen);
+    }
+    if(onclose) {
+        socket.addEventListener('close', onclose);
+    }
 
     // Listen for messages
     socket.addEventListener('message', handlePocketcorePacket);
@@ -21,13 +38,13 @@ function handlePocketcorePacket(event) {
 
     switch (response.type) {
         case 'message':
-            console.log('Got message: ' + response.body.message);
+            console.log('[PocketCore]: ' + response.body.message);
             // TODO: Make message box
 
             break;
         case 'chunk':
             recieveChunk(response.body.chunk);
-            console.log('Recieved chunkX: ' + response.body.chunk.x + ', chunkZ: ' + response.body.chunk.z);
+            UI.log('Recieved chunkX: ' + response.body.chunk.x + ', chunkZ: ' + response.body.chunk.z);
             break;
 
         case 'level':
@@ -36,9 +53,7 @@ function handlePocketcorePacket(event) {
             break;
 
         case 'player.join':
-            console.log(response.body);
-
-            console.log('Player ' + response.body.name + ' has joined');
+            UI.log('Player ' + response.body.name + ' has joined the game');
 
             addPlayer(response.body.eid, {
                 name: response.body.name,
@@ -49,6 +64,8 @@ function handlePocketcorePacket(event) {
             break;
 
         case 'player.leave':
+            UI.log('Player ' + response.body.name + ' has left game');
+
             removePlayer(response.body.eid);
             break;
 
@@ -57,7 +74,8 @@ function handlePocketcorePacket(event) {
             break;
 
         default:
-            console.error('unhandled response: ' + response.type);
+            UI.log('unhandled response: ' + response.type);
+
             break;
     }
     
