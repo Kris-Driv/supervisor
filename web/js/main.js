@@ -22,7 +22,7 @@ function controlZoom(event) {
     let zoom = event.deltaY / 100;
 
     renderer.scl += zoom;
-    renderer.scl = max(0.8, min(renderer.scl, 5));
+    renderer.scl = max(0.5, min(renderer.scl, 5));
 
     event.preventDefault();
 }

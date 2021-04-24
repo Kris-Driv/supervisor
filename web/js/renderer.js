@@ -1,12 +1,5 @@
 var scl = 5;
 
-var depthBufferImage;
-var primaryBufferImage;
-var secondaryBufferImage;
-
-// Used for the little overview window
-var bigMapBufferImage;
-
 var drawOverlay = true;
 var drawPlayers = true;
 var drawDepth = false;
@@ -16,6 +9,40 @@ var depthBlendMode;
 var depthAlphaOffset = 5;
 
 const renderer = {
+
+    Buffer: {
+        SIZE: (16 * 16),
+        loaded: [],
+
+        getFor(worldX, worldY, create = true) {
+            let i = floor(worldX / renderer.Buffer.SIZE);
+            let j = floor(worldY / renderer.Buffer.SIZE);
+
+            if (renderer.Buffer.loaded[i] === undefined) {
+                renderer.Buffer.loaded[i] = [];
+            }
+
+            let buff = renderer.Buffer.loaded[i][j];
+
+            if (buff) {
+                return buff;
+            }
+
+            if (!create) {
+                return null;
+            }
+
+            buff = createGraphics(renderer.Buffer.SIZE, renderer.Buffer.SIZE);
+            buff.noStroke();
+
+            buff.i = i;
+            buff.j = j;
+
+            renderer.Buffer.loaded[i][j] = buff;
+
+            return buff;
+        }
+    },
 
     scl: scl,
     topScl: 0.5,
@@ -29,43 +56,35 @@ const renderer = {
     bufferIncreaseOnOverflow: 160,
 
     setup: () => {
-        // Create image buffer, this should be huge performance improvement
-        // Currently we're drawing 1600 chunks at about 0.3 Frames per second
-        primaryBufferImage = createGraphics(width, height);
-        secondaryBufferImage = createGraphics(width, height);
-        
-        bigMapBufferImage = createGraphics(100, 100);
-        depthBufferImage = createGraphics(width, height);
-
-        primaryBufferImage.noStroke();
-        bigMapBufferImage.noStroke();
-
         depthBlendMode = BURN;
-
-        // renderer.offsetX = width / 2;
-        // renderer.offsetY = height / 2;
     },
 
     render: () => {
-        // Draw Map buffer
-        image(primaryBufferImage,
-            // Position
-            renderer.offsetX + renderer.tempOffsetX,
-            renderer.offsetY + renderer.tempOffsetY,
-            // Size (zoom etc.)
-            width * renderer.scl,
-            height * renderer.scl
-        );
 
-        image(bigMapBufferImage, width - 100, height - 100, 100, 100);
+        renderer.Buffer.loaded.forEach((buffers, i) => {
+            buffers.forEach((buffer, j) => {
+                push();
 
-        // And depth shading
-        if (drawDepth) {
-            push();
-            blendMode(BURN);
-            image(depthBufferImage, 0, 0, width * renderer.scl, height * renderer.scl);
-            pop();
-        }
+                translate(
+                    i * renderer.Buffer.SIZE * renderer.scl + renderer.offsetX + renderer.tempOffsetX,
+                    j * renderer.Buffer.SIZE * renderer.scl + renderer.offsetY + renderer.tempOffsetY
+                );
+
+                // Draw Map buffer
+                image(buffer, 0, 0,
+                    // Size (zoom etc.)
+                    buffer.width * renderer.scl,
+                    buffer.height * renderer.scl
+                );
+
+                noFill();
+                stroke('green');
+                strokeWeight(2);
+                rect(0, 0, renderer.Buffer.SIZE * renderer.scl, renderer.Buffer.SIZE * renderer.scl);
+
+                pop();
+            });
+        });
 
         // Render grid overlay
         if (drawOverlay) {
@@ -81,45 +100,21 @@ const renderer = {
     },
 
     renderChunk: (chunk) => {
-        primaryBufferImage.fill('red');
+        var buffer = renderer.Buffer.getFor(chunk.x << 4, chunk.z << 4);
+        var cx = (chunk.x % 16) << 4;
+        var cz = (chunk.z % 16) << 4;
 
-        let coords = worldToBuffer(chunk.x << 4, chunk.z << 4);
-        let cx = coords[0];
-        let cy = coords[1];
-        // primaryBufferImage.rect(coords[0], coords[1], 16, 16);
-
-        // Check if we need to increase the buffer size
-        if (coords[0] > primaryBufferImage.width || coords[1] >= primaryBufferImage.height) {
-            // Increase buffer
-            UI.log(`Outside buffer rendering detected, increasing buffer size by ${renderer.bufferIncreaseOnOverflow}px`);
-
-            secondaryBufferImage.resizeCanvas(primaryBufferImage.width, primaryBufferImage.height);
-            secondaryBufferImage.image(primaryBufferImage, 0, 0, primaryBufferImage.width, primaryBufferImage.height);
-
-            primaryBufferImage.resizeCanvas(primaryBufferImage.width + 160, primaryBufferImage.height + 160);
-            primaryBufferImage.image(secondaryBufferImage, 0, 0, secondaryBufferImage.width, secondaryBufferImage.height);
-
-            // let buffPrev = primaryBufferImage;
-            // let buffNew = createGraphics(buffPrev.width + renderer.bufferIncreaseOnOverflow, buffPrev.height + renderer.bufferIncreaseOnOverflow);
-            // Render the previous buffer to new one, in order to keep previous chunks on the screen
-            // buffNew.image(buffPrev, 0, 0, buffPrev.width, buffPrev.height);
-            // Apply the changes
-            // primaryBufferImage = buffNew;
-            UI.log(`Buffer increased by ${renderer.bufferIncreaseOnOverflow}px pixels`);
-        }
+        buffer.fill('red');
 
         for (var x = 0; x < 16; x++) {
             for (var z = 0; z < 16; z++) {
                 let blockId = Object.values(chunk.layer[x][z])[0];
                 let blockColor = renderer.getBlockColor(blockId);
 
-                primaryBufferImage.fill(blockColor);
-                primaryBufferImage.rect(cx + x, cy + z, 1);
+                buffer.fill(blockColor);
+                buffer.rect(cx + x, cz + z, 1);
             }
         }
-        bigMapBufferImage.image(primaryBufferImage, 0, 0, bigMapBufferImage.width, bigMapBufferImage.height);
-
-        // renderer.renderChunkDepthBuffer(chunk);
     },
 
     renderChunkDepthBuffer: (chunk) => {
@@ -199,14 +194,14 @@ const renderer = {
     },
 
     renderBufferOutlines: () => {
-        noFill();
-        stroke('black');
-        rect(
-            renderer.offsetX + renderer.tempOffsetX,
-            renderer.offsetY + renderer.tempOffsetY,
-            primaryBufferImage.width * renderer.scl,
-            primaryBufferImage.height * renderer.scl
-        );
+        // noFill();
+        // stroke('black');
+        // rect(
+        //     renderer.offsetX + renderer.tempOffsetX,
+        //     renderer.offsetY + renderer.tempOffsetY,
+        //     primaryBufferImage.width * renderer.scl,
+        //     primaryBufferImage.height * renderer.scl
+        // );
     },
 
     renderAxis: () => {
