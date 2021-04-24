@@ -1,15 +1,15 @@
 function FlatColorBlockPainter() {
 
-    this.paint = function(buffer, x, y, blockId) {
+    this.paint = function(buffer, x, y, z, blockId) {
         let blockColor = this.getBlockColor(blockId);
 
         buffer.fill(blockColor);
-        buffer.rect(x, y, 1);
+        buffer.rect(x, z, 1);
     }
 
     this.blockColorMap = {
         // Grass
-        // '2': '#00b894',
+        '2': '#00b894',
         // Snow
         '78': '#dfe6e9',
         // Stone
