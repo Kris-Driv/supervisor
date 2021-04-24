@@ -4,6 +4,16 @@ const fs = require("fs");
 const { exit } = require("process");
 
 const CommandInstances = {
+    Entities: {
+        usage: 'entities',
+
+        execute: (ws, args) => {
+
+            console.log(Command.handler.cache.entities);
+
+            return true;
+        }
+    },
     Say: {
         usage: 'say <...message>',
 
@@ -123,7 +133,8 @@ const Command = {
     registered: {
         'cache': CommandInstances.Cache,
         'say': CommandInstances.Say,
-        'stop': CommandInstances.Stop
+        'stop': CommandInstances.Stop,
+        'entities': CommandInstances.Entities
     },
 
     ...CommandInstances,

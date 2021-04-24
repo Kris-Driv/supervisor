@@ -48,7 +48,9 @@ function handlePocketcorePacket(event) {
             break;
 
         case 'level':
+            UI.log('Recieved level data: ' + response.body.chunks.length);
             recieveChunks(response.body.chunks);
+            recieveEntities(response.body.entities);
             // console.log('Recieved chunks in bulk, size: ' + floor(response.body.chunks.length) + ' bytes');
             break;
 

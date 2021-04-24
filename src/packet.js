@@ -5,6 +5,7 @@ const decode = (pk) => pk.body;
 const Packet = {
 
     EntityPosition: {
+        listeners: [],
         name: "entity.position",
         broadcast: true,
 
@@ -21,6 +22,7 @@ const Packet = {
     },
 
     PlayerJoin: {
+        listeners: [],
         name: "player.join",
         broadcast: true,
 
@@ -39,6 +41,7 @@ const Packet = {
     },
 
     PlayerLeave: {
+        listeners: [],
         name: "player.leave",
         broadcast: true,
 
@@ -56,13 +59,15 @@ const Packet = {
     },
 
     Level: {
+        listeners: [],
         name: "level",
         decode,
 
-        encode: (name, chunks) => {
+        encode: (name, chunks, entities) => {
             return Packet._encode('level', {
                 name,
-                chunks: Buffer.from(JSON.stringify(chunks)).toString('base64')
+                chunks: Buffer.from(JSON.stringify(chunks)).toString('base64'),
+                entities
             });
         },
         handle: (pk, ws) => {
@@ -71,6 +76,7 @@ const Packet = {
     },
 
     Chunk: {
+        listeners: [],
         name: "chunk",
         broadcast: true,
 
@@ -85,6 +91,7 @@ const Packet = {
     },
 
     Ping: {
+        listeners: [],
         name: "ping",
         bounce: true,
 
@@ -100,6 +107,7 @@ const Packet = {
     },
 
     Subscribe: {
+        listeners: [],
         name: "subscribe",
         decode: (pk) => {
             return true;
@@ -113,6 +121,7 @@ const Packet = {
     },
 
     Message: {
+        listeners: [],
         name: "message",
         broadcast: true,
 
