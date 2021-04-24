@@ -56,7 +56,7 @@ function handlePocketcorePacket(event) {
         case 'player.join':
             UI.log('Player ' + response.body.name + ' has joined the game');
 
-            addPlayer(response.body.eid, {
+            addPlayer(response.body.eid ?? 0, {
                 name: response.body.name,
                 eid: response.body.eid,
                 position: response.body.position

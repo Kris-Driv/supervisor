@@ -56,6 +56,9 @@ const renderer = {
 
     setup: () => {
         renderer.BlockPainter = new FlatColorBlockPainter();
+
+        renderer.offsetX = width / 2;
+        renderer.offsetY = height / 2;
     },
 
     render: () => {
@@ -76,10 +79,10 @@ const renderer = {
                 buffer.height * renderer.scl
             );
 
-            noFill();
-            stroke('green');
-            strokeWeight(2);
-            rect(0, 0, renderer.Buffer.SIZE * renderer.scl, renderer.Buffer.SIZE * renderer.scl);
+            // noFill();
+            // stroke('green');
+            // strokeWeight(2);
+            // rect(0, 0, renderer.Buffer.SIZE * renderer.scl, renderer.Buffer.SIZE * renderer.scl);
 
             pop();
         });
@@ -185,7 +188,7 @@ const renderer = {
             if(!player) return;
 
             push();
-            // let coords = worldToCanvas(player.position.x, player.position.z);
+            let coords = worldToCanvas(player.position.x, player.position.z);
 
             // Move the origin to player pos
             translate(coords[0] + renderer.offsetX + renderer.tempOffsetX, coords[1] + renderer.offsetY + renderer.tempOffsetY);
