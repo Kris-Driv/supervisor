@@ -119,63 +119,7 @@ const renderer = {
             resolve(buffer);
         })
     },
-
-    renderChunkDepthBuffer: (chunk) => {
-        let y, alpha;
-        let chunkX = chunk.x;
-        let chunkZ = chunk.z;
-
-        depthBufferImage.noStroke();
-        for (var x = 0; x < 16; x++) {
-            for (var z = 0; z < 16; z++) {
-                y = Object.keys(chunk.layer[x][z])[0];
-                // Calculate alpha based on the height
-                // map(value, start1, stop1, start2, stop2, [withinBounds])
-                if (y <= 64) {
-                    if (y <= 60) {
-                        if (y <= 54) {
-                            alpha = map(y, 54, 20, 90, 160);
-                        } else {
-                            alpha = map(y, 60, 50, 68, 240);
-                        }
-                    } else {
-                        alpha = map(y, 64, 48, 68, 240);
-                    }
-                } else {
-                    if (y >= 90) {
-                        if (y >= 91 && y <= 92) {
-                            alpha = map(y, 91, 92, 10, 30);
-                        } else {
-                            alpha = map(y, 90, 110, 55, 5);
-                        }
-                    } else {
-                        if (y >= 72 && y <= 84) {
-                            if (y >= 74 && y <= 75) {
-                                alpha = map(y, 74, 75, 30, 60);
-                            } else {
-                                alpha = map(y, 72, 84, 140, 90);
-                            }
-                        } else {
-                            if (y >= 87 && y <= 89) {
-                                alpha = map(y, 87, 89, 30, 60);
-                            } else {
-                                alpha = map(y, 64, 90, 80, 70);
-                            }
-                        }
-                    }
-                }
-
-                depthBufferImage.fill(color(depthBrightness, depthBrightness, depthBrightness, alpha + depthAlphaOffset));
-
-                depthBufferImage.rect(
-                    (chunkX * 16 * scl) + (x * scl),
-                    (chunkZ * 16 * scl) + (z * scl),
-                    scl, scl
-                );
-            }
-        }
-    },
-
+    
     renderGridOverlay: () => {
         var chunkSize = 16 * (renderer.scl);
         var xOff = (renderer.offsetX + renderer.tempOffsetX) % chunkSize;

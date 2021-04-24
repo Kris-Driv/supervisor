@@ -1,9 +1,31 @@
 function FlatColorBlockPainter() {
 
+    this.shadingConfiguration = [
+        [2, 40], [3, 15], [4, 20]
+    ];
+
     this.paint = function(buffer, x, y, z, blockId) {
         let blockColor = this.getBlockColor(blockId);
 
         buffer.fill(blockColor);
+        buffer.rect(x, z, 1);
+
+        this.shafeForDepth(buffer, x, y, z, blockId);
+    }
+
+    this.shafeForDepth = function(buffer, x, y, z, blockId) {
+        let alpha = 0;
+
+        this.shadingConfiguration.forEach((settings) => {
+            let step = settings[0];
+            let gradient = settings[1];
+
+            alpha += map(parseInt(y) % step, 0, step - 1, 30, step * gradient);
+        });
+        alpha = (alpha / this.shadingConfiguration.length);
+        
+
+        buffer.fill(color(100, 100, 100, alpha));
         buffer.rect(x, z, 1);
     }
 
@@ -42,10 +64,10 @@ function FlatColorBlockPainter() {
         '79': '#74b9ff',
         // Packed ice (darker?)
         '174': '#0984e3',
-    },
+    }
 
     // Grass color
-    this.fallbackBlockColor = this.blockColorMap['2'],
+    this.fallbackBlockColor = this.blockColorMap['2'];
 
     this.getBlockColor = function(blockId) {
         return this.blockColorMap[blockId] ?? ((id) => {
