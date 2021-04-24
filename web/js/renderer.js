@@ -110,7 +110,7 @@ const renderer = {
             for (var x = 0; x < 16; x++) {
                 for (var z = 0; z < 16; z++) {
                     let blockId = Object.values(chunk.layer[x][z])[0];
-                    let y = Object.keys(chunk.layers[x][z])[0];
+                    let y = Object.keys(chunk.layer[x][z])[0];
 
                     renderer.BlockPainter.paint(buffer, cx + x, y, cz + z, blockId);
                 }
