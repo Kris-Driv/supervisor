@@ -15,15 +15,15 @@ const renderer = {
         SIZE: (16 * 16),
         loaded: [],
 
+        hash(bufferX, bufferY) {
+            return bufferX + ':' + bufferY;
+        },
+
         getFor(worldX, worldY, create = true) {
             let i = floor(worldX / renderer.Buffer.SIZE);
             let j = floor(worldY / renderer.Buffer.SIZE);
 
-            if (renderer.Buffer.loaded[i] === undefined) {
-                renderer.Buffer.loaded[i] = [];
-            }
-
-            let buff = renderer.Buffer.loaded[i][j];
+            let buff = renderer.Buffer.loaded[renderer.Buffer.hash(i, j)];
 
             if (buff) {
                 return buff;
@@ -39,7 +39,7 @@ const renderer = {
             buff.i = i;
             buff.j = j;
 
-            renderer.Buffer.loaded[i][j] = buff;
+            renderer.Buffer.loaded[renderer.Buffer.hash(i, j)] = buff;
 
             return buff;
         }
@@ -60,29 +60,28 @@ const renderer = {
 
     render: () => {
 
-        renderer.Buffer.loaded.forEach((buffers, i) => {
-            buffers.forEach((buffer, j) => {
-                push();
+        Object.values(renderer.Buffer.loaded)
+        .forEach((buffer) => {
+            push();
 
-                translate(
-                    i * renderer.Buffer.SIZE * renderer.scl + renderer.offsetX + renderer.tempOffsetX,
-                    j * renderer.Buffer.SIZE * renderer.scl + renderer.offsetY + renderer.tempOffsetY
-                );
+            translate(
+                buffer.i * renderer.Buffer.SIZE * renderer.scl + renderer.offsetX + renderer.tempOffsetX,
+                buffer.j * renderer.Buffer.SIZE * renderer.scl + renderer.offsetY + renderer.tempOffsetY
+            );
 
-                // Draw Map buffer
-                image(buffer, 0, 0,
-                    // Size (zoom etc.)
-                    buffer.width * renderer.scl,
-                    buffer.height * renderer.scl
-                );
+            // Draw Map buffer
+            image(buffer, 0, 0,
+                // Size (zoom etc.)
+                buffer.width * renderer.scl,
+                buffer.height * renderer.scl
+            );
 
-                // noFill();
-                // stroke('green');
-                // strokeWeight(2);
-                // rect(0, 0, renderer.Buffer.SIZE * renderer.scl, renderer.Buffer.SIZE * renderer.scl);
+            noFill();
+            stroke('green');
+            strokeWeight(2);
+            rect(0, 0, renderer.Buffer.SIZE * renderer.scl, renderer.Buffer.SIZE * renderer.scl);
 
-                pop();
-            });
+            pop();
         });
 
         // Render grid overlay
@@ -102,13 +101,24 @@ const renderer = {
         return new Promise((resolve, reject) => {
             var buffer = renderer.Buffer.getFor(chunk.x << 4, chunk.z << 4);
 
-            var cx = (chunk.x % 16) << 4;
-            var cz = (chunk.z % 16) << 4;
+            let i = buffer.i < 0 ? -1 : 1;
+            let j = buffer.j < 0 ? -1 : 1;
 
-            buffer.fill('red');
+            var cx = Math.abs((chunk.x % 16) << 4);
+            var cz = Math.abs((chunk.z % 16) << 4);
 
-            for (var x = 0; x < 16; x++) {
-                for (var z = 0; z < 16; z++) {
+            // Left
+            if(i < 0) {
+                cx = buffer.width - cx;
+            }
+
+            // Top
+            if(j < 0) {
+                cz = buffer.height - cz;
+            }
+
+            for(let x = 0; x < 16; x++) {
+                for(let z = 0; z < 16; z++) {
                     let blockId = Object.values(chunk.layer[x][z])[0];
                     let y = Object.keys(chunk.layer[x][z])[0];
 
@@ -119,7 +129,7 @@ const renderer = {
             resolve(buffer);
         })
     },
-    
+
     renderGridOverlay: () => {
         var chunkSize = 16 * (renderer.scl);
         var xOff = (renderer.offsetX + renderer.tempOffsetX) % chunkSize;
@@ -171,8 +181,11 @@ const renderer = {
         noStroke();
         fill('red');
         players.forEach(player => {
+            // TODO: fix
+            if(!player) return;
+
             push();
-            let coords = worldToCanvas(player.position.x, player.position.z);
+            // let coords = worldToCanvas(player.position.x, player.position.z);
 
             // Move the origin to player pos
             translate(coords[0] + renderer.offsetX + renderer.tempOffsetX, coords[1] + renderer.offsetY + renderer.tempOffsetY);
