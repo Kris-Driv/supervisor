@@ -2,13 +2,14 @@ var scl = 5;
 
 var drawOverlay = true;
 var drawPlayers = true;
-var drawDepth = false;
 
 var depthBrightness = 80;
 var depthBlendMode;
 var depthAlphaOffset = 5;
 
 const renderer = {
+
+    BlockPainter: null,
 
     Buffer: {
         SIZE: (16 * 16),
@@ -53,10 +54,8 @@ const renderer = {
     tempOffsetX: 0,
     tempOffsetY: 0,
 
-    bufferIncreaseOnOverflow: 160,
-
     setup: () => {
-        depthBlendMode = BURN;
+        renderer.BlockPainter = new FlatColorBlockPainter();
     },
 
     render: () => {
@@ -77,10 +76,10 @@ const renderer = {
                     buffer.height * renderer.scl
                 );
 
-                noFill();
-                stroke('green');
-                strokeWeight(2);
-                rect(0, 0, renderer.Buffer.SIZE * renderer.scl, renderer.Buffer.SIZE * renderer.scl);
+                // noFill();
+                // stroke('green');
+                // strokeWeight(2);
+                // rect(0, 0, renderer.Buffer.SIZE * renderer.scl, renderer.Buffer.SIZE * renderer.scl);
 
                 pop();
             });
@@ -100,21 +99,24 @@ const renderer = {
     },
 
     renderChunk: (chunk) => {
-        var buffer = renderer.Buffer.getFor(chunk.x << 4, chunk.z << 4);
-        var cx = (chunk.x % 16) << 4;
-        var cz = (chunk.z % 16) << 4;
+        return new Promise((resolve, reject) => {
+            var buffer = renderer.Buffer.getFor(chunk.x << 4, chunk.z << 4);
 
-        buffer.fill('red');
+            var cx = (chunk.x % 16) << 4;
+            var cz = (chunk.z % 16) << 4;
 
-        for (var x = 0; x < 16; x++) {
-            for (var z = 0; z < 16; z++) {
-                let blockId = Object.values(chunk.layer[x][z])[0];
-                let blockColor = renderer.getBlockColor(blockId);
+            buffer.fill('red');
 
-                buffer.fill(blockColor);
-                buffer.rect(cx + x, cz + z, 1);
+            for (var x = 0; x < 16; x++) {
+                for (var z = 0; z < 16; z++) {
+                    let blockId = Object.values(chunk.layer[x][z])[0];
+
+                    renderer.BlockPainter.paint(buffer, cx + x, cz + x, blockId);
+                }
             }
-        }
+
+            resolve(buffer);
+        })
     },
 
     renderChunkDepthBuffer: (chunk) => {
@@ -177,19 +179,18 @@ const renderer = {
         var chunkSize = 16 * (renderer.scl);
         var xOff = (renderer.offsetX + renderer.tempOffsetX) % chunkSize;
         var yOff = (renderer.offsetY + renderer.tempOffsetY) % chunkSize;
-        var xSize = floor(width / chunkSize) + 1;
-        var zSize = floor(height / chunkSize) + 1;
+        var linesInX = floor(width / chunkSize) + 1;
+        var linesInY = floor(height / chunkSize) + 1;
 
         noFill();
         stroke(40);
         strokeWeight(1);
 
-
-
-        for (x = 0; x < xSize; x++) {
-            for (z = 0; z < zSize; z++) {
-                rect(x * chunkSize + xOff, z * chunkSize + yOff, chunkSize, chunkSize);
-            }
+        for (let x = 0; x < linesInX; x++) {
+            line(x * chunkSize + xOff, 0, x * chunkSize + xOff, height);
+        }
+        for (let y = 0; y < linesInY; y++) {
+            line(0, y * chunkSize + yOff, width, y * chunkSize + yOff);
         }
     },
 
@@ -259,54 +260,5 @@ const renderer = {
             text(txt, mouseX + (txt.length * 12 / 5), mouseY + 18);
         }
     },
-
-    blockColorMap: {
-        // Grass
-        // '2': '#00b894',
-        // Snow
-        '78': '#dfe6e9',
-        // Stone
-        '1': '#636e72',
-        // Some plants
-        // '31': '#78e08f',
-        // Oak leaves
-        '18': '#009432',
-        // Water
-        '9': '#0652DD',
-        // Sand
-        '12': '#ffeaa7',
-        // Dead bush
-        //'31': '#cc8e35',
-        // Dirt
-        '3': '#f0932b',
-        // Pink clay
-        '159': '#edcecc',
-        // Poppy
-        //'38': '#8a140c',
-        // Brown mushroom
-        //'39': '#cc8d60',
-        // Sunflower
-        //'175': '#ffe100',
-        // Hardened Clay
-        '172': '#c97947',
-        // Acacia leaves
-        '161': '#78e08f',
-        // Ice
-        '79': '#74b9ff',
-        // Packed ice (darker?)
-        '174': '#0984e3',
-    },
-
-    // Grass color
-    fallbackBlockColor: '#00b894',
-
-    getBlockColor: (blockId) => {
-        return renderer.blockColorMap[blockId] ?? ((id) => {
-
-            // console.log('unknown block ' + id);
-            return renderer.fallbackBlockColor;
-
-        })(blockId);
-    }
 
 }

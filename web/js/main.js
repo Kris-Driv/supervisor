@@ -111,7 +111,9 @@ function keyPressed() {
 
 function requestLevel() {
     UI.log('Requesting full level data ...');
-    socket.send('{"type": "level"}');
+    sendPacket('{"type": "level"}').then(() => {
+        console.log('Sent the packet');
+    });
 }
 
 function clearChunks() {

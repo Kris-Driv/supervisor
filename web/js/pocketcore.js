@@ -38,8 +38,7 @@ function handlePocketcorePacket(event) {
 
     switch (response.type) {
         case 'message':
-            console.log('[PocketCore]: ' + response.body.message);
-            // TODO: Make message box
+            UI.log('[PocketCore]: ' + response.body.message);
 
             break;
         case 'chunk':
@@ -81,4 +80,12 @@ function handlePocketcorePacket(event) {
             break;
     }
     
+}
+
+function sendPacket(packet) {
+    return new Promise((resolve) => {
+        socket.send(packet);
+
+        resolve();
+    });
 }
