@@ -129,7 +129,7 @@ const Handler = {
 
     _validate: (packet, ws) => {
         if (packet.type === undefined) {
-            logger.error('Recieved packet with unknown type. Packet ignored!');
+            logger.error('Received packet with unknown type. Packet ignored!');
 
             return false;
         }

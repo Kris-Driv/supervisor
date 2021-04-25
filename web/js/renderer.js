@@ -64,28 +64,28 @@ const renderer = {
     render: () => {
 
         Object.values(renderer.Buffer.loaded)
-        .forEach((buffer) => {
-            push();
+            .forEach((buffer) => {
+                push();
 
-            translate(
-                buffer.i * renderer.Buffer.SIZE * renderer.scl + renderer.offsetX + renderer.tempOffsetX,
-                buffer.j * renderer.Buffer.SIZE * renderer.scl + renderer.offsetY + renderer.tempOffsetY
-            );
+                translate(
+                    buffer.i * renderer.Buffer.SIZE * renderer.scl + renderer.offsetX + renderer.tempOffsetX,
+                    buffer.j * renderer.Buffer.SIZE * renderer.scl + renderer.offsetY + renderer.tempOffsetY
+                );
 
-            // Draw Map buffer
-            image(buffer, 0, 0,
-                // Size (zoom etc.)
-                buffer.width * renderer.scl,
-                buffer.height * renderer.scl
-            );
+                // Draw Map buffer
+                image(buffer, 0, 0,
+                    // Size (zoom etc.)
+                    buffer.width * renderer.scl,
+                    buffer.height * renderer.scl
+                );
 
-            // noFill();
-            // stroke('green');
-            // strokeWeight(2);
-            // rect(0, 0, renderer.Buffer.SIZE * renderer.scl, renderer.Buffer.SIZE * renderer.scl);
+                // noFill();
+                // stroke('green');
+                // strokeWeight(2);
+                // rect(0, 0, renderer.Buffer.SIZE * renderer.scl, renderer.Buffer.SIZE * renderer.scl);
 
-            pop();
-        });
+                pop();
+            });
 
         // Render grid overlay
         if (drawOverlay) {
@@ -100,37 +100,52 @@ const renderer = {
         }
     },
 
+    magic: 32,
+
     renderChunk: (chunk) => {
         return new Promise((resolve, reject) => {
-            var buffer = renderer.Buffer.getFor(chunk.x << 4, chunk.z << 4);
+            try {
+                var buffer = renderer.Buffer.getFor(chunk.x << 4, chunk.z << 4);
 
-            let i = buffer.i < 0 ? -1 : 1;
-            let j = buffer.j < 0 ? -1 : 1;
+                // Quadrant II & III
+                let i = buffer.i < 0 ? -1 : 1;
+                // Quadrant I  & IV
+                let j = buffer.j < 0 ? -1 : 1;
 
-            var cx = Math.abs((chunk.x % 16) << 4);
-            var cz = Math.abs((chunk.z % 16) << 4);
+                var chunkBufferX = Math.abs(((chunk.x + (i < 0 ? 1 : 0)) % 16) << 4);
+                var chunkBufferZ = Math.abs(((chunk.z + (j < 0 ? 1 : 0)) % 16) << 4);
 
-            // Left
-            if(i < 0) {
-                cx = buffer.width - cx;
-            }
-
-            // Top
-            if(j < 0) {
-                cz = buffer.height - cz;
-            }
-
-            for(let x = 0; x < 16; x++) {
-                for(let z = 0; z < 16; z++) {
-                    let blockId = Object.values(chunk.layer[x][z])[0];
-                    let y = Object.keys(chunk.layer[x][z])[0];
-
-                    renderer.BlockPainter.paint(buffer, cx + x, y, cz + z, blockId);
+                // Left
+                if (i < 0) {
+                    chunkBufferX = buffer.width - chunkBufferX - 16;
                 }
-            }
 
-            resolve(buffer);
-        })
+                // Top
+                if (j < 0) {
+                    chunkBufferZ = buffer.height - chunkBufferZ - 16;
+                }
+
+                for (let x = 0; x < 16; x++) {
+                    for (let z = 0; z < 16; z++) {
+                        let blockId = Object.values(chunk.layer[x][z])[0];
+                        let y = Object.keys(chunk.layer[x][z])[0];
+
+                        renderer.BlockPainter.paint(buffer, chunkBufferX + x, y, chunkBufferZ + z, blockId);
+
+                        if (chunkBufferX + x >= buffer.width) {
+                            console.log(`Outside buffer rendering on x axis detected. (Target: ${chunkBufferX + x}) (Buffer: ${buffer.i}, ${buffer.j}) (Chunk: ${chunk.x}, ${chunk.z})`);
+                        }
+                        if (chunkBufferZ + z >= buffer.height) {
+                            console.log(`Outside buffer rendering on y axis detected. (Target: ${chunkBufferZ + z}) (Buffer: ${buffer.i}, ${buffer.j}) (Chunk: ${chunk.x}, ${chunk.z})`);
+                        }
+                    }
+                }
+
+                resolve(buffer);
+            } catch (exception) {
+                reject(exception);
+            }
+        });
     },
 
     renderGridOverlay: () => {
@@ -185,7 +200,7 @@ const renderer = {
         fill('red');
         players.forEach(player => {
             // TODO: fix
-            if(!player) return;
+            if (!player) return;
 
             push();
             let coords = worldToCanvas(player.position.x, player.position.z);
@@ -212,9 +227,19 @@ const renderer = {
         noStroke();
         fill('#FFF');
         textSize(12);
+
+        // World Coordinates
         let coord = canvasToWorld(mouseX, mouseY);
         let txt = `[${coord[0]}, ${coord[2]}, ${coord[1]}]`;
-        text(txt, mouseX + (txt.length * 12 / 5), mouseY);
+        text(txt, mouseX + 20, mouseY - 20);
+
+        // Chunk Coordinates
+        let cx = coord[0] >> 4;
+        let cy = coord[1] >> 4;
+        txt = `[${cx}, ${cy}]`;
+        text(txt, mouseX + 20, mouseY - 8);
+
+        // Block ID
         let bid = getBlockIdAt(coord[0], coord[1]);
         if (bid) {
             let txt = `[Block ID: ${bid}]`;

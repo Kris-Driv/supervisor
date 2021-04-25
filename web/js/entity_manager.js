@@ -14,6 +14,14 @@ function updatePosition(eid, position) {
 
 function recieveEntities(entities) {
     entities.forEach(entity => {
+        if(!entity) {
+            return;
+        }
+
+        if(!entity.type) {
+            return;
+        }
+        
         if(entity.type === 'player') {
             addPlayer(entity.eid, entity);
             UI.log(`Added Player Entity (${entity.name}) to the list`);

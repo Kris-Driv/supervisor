@@ -50,16 +50,13 @@ class Level {
     }
 
     setChunk(x, z, chunk) {
-        if(!this.chunks[x]) {
-            this.chunks[x] = [];
-        }
-        this.chunks[x][z] = chunk;
+        this.chunks[x + ':' + z] = chunk;
 
         this.cachedPacket = null;
     }
 
     setChunks(chunks) {
-        chunks.forEach(chunk => {
+        Object.values(chunks).forEach(chunk => {
             this.setChunk(chunk.x, chunk.z, chunk);
         });
     }

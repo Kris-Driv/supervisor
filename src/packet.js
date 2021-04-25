@@ -66,7 +66,7 @@ const Packet = {
         encode: (name, chunks, entities) => {
             return Packet._encode('level', {
                 name,
-                chunks: Buffer.from(JSON.stringify(chunks)).toString('base64'),
+                chunks: Buffer.from(JSON.stringify(Object.values(chunks))).toString('base64'),
                 entities
             });
         },

@@ -47,6 +47,7 @@ function worldToBuffer(worldX, worldZ) {
 }
 
 function getWorldY(x, z) {
+    return 0;
     let cx = x >> 4;
     let cz = z >> 4;
     let rx = x % 16;

@@ -1,11 +1,47 @@
 let chunks = [];
 
+function refresh() {
+    chunks.forEach(chunk => renderer.renderChunk(chunk));
+}
+
 function recieveChunk(chunk) {
-    // Update, if chunk in position
-    chunks[chunk.x + ':' + chunk.z] = chunk;
+    try {
+        validateChunk(chunk);
+    } catch(error) {
+        return UI.log(`Invalid ${describeChunk(chunk)}:` + error);
+        // throw error;
+    }
 
     // Edit mapBufferImage buffer with this new chunk
-    renderer.renderChunk(chunk);
+    renderer.renderChunk(chunk).then(() => {
+        // Chunk rendered, save
+        chunks[chunk.x + ':' + chunk.z] = chunk;
+    }).catch(error => {
+        UI.log(`Error rendering ${describeChunk(chunk)}: ` + error);
+        throw error;
+    });
+}
+
+function describeChunk(chunk) {
+   return `chunk[` + (chunk ? `${chunk.x ?? '?'},${chunk.z ?? '?'}` : `?`) + `]`;
+}
+
+function validateChunk(chunk) {
+    if(chunk === undefined) {
+        throw 'undefined given';
+    }
+    if(chunk === null) {
+        throw 'null given';
+    }
+    if(chunk.x === undefined) {
+        throw 'chunk x coordinate was not given';
+    }
+    if(chunk.z === undefined) {
+        throw 'chunk z coordinate was not given';
+    }
+    if(chunk.layer === undefined) {
+        throw 'chunk layer was not given';
+    }
 }
 
 function recieveChunks(chunksBase64) {
@@ -19,23 +55,14 @@ function recieveChunks(chunksBase64) {
         }
     })).then((chunks) => {
         (new Promise((resolve, reject) => {
-            for(let x = chunks.length - 1; x >= 0; x--) {
-                if(!chunks[x]) continue;
-        
-                for(let z = chunks[x].length - 1; z >= 0; z--) {
-                    let chunk = chunks[x][z];
-                    if(!chunk) {
-                        // console.error(`no chunk at x: ${x}, z: ${z}`);
-                        continue;
-                    }
-        
-                    recieveChunk(chunk);
-                }
+            try {
+                chunks.forEach(chunksX => chunksX.forEach(chunk => recieveChunk(chunk)));
+                resolve();
+            } catch (e) {
+                reject(e);
             }
         })).then(() => {
             console.log('Chunks passed to renderer');
-        }).catch(err => {
-            console.log('Error while piping the chunk data');
         });
     }).catch(err => {
         console.err(err);
