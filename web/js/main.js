@@ -1,4 +1,6 @@
 var anchor;
+var afterRender = [];
+
 const defaultAddress = 'ws://localhost:27095';
 
 function setup() {
@@ -16,6 +18,9 @@ function draw() {
 
     UI.update();
     renderer.render();
+
+    afterRender.forEach(cb => cb());
+    afterRender = [];
 }
 
 function controlZoom(event) {
@@ -35,10 +40,10 @@ function canvasToWorld(canvasX, canvasY) {
     ];
 }
 
-function worldToCanvas(worldX, worldZ) {
+function worldToCanvas(worldX, worldZ, offset = true) {
     return [
-        (worldX * renderer.scl),
-        (worldZ * renderer.scl)
+        (worldX * renderer.scl) + (offset ? renderer.offsetX + renderer.tempOffsetX : 0),
+        (worldZ * renderer.scl) + (offset ? renderer.offsetY + renderer.tempOffsetY : 0)
     ];
 }
 

@@ -1,6 +1,9 @@
 var players = [];
 
 function addPlayer(eid, player) {
+    if(!eid) {
+        UI.error('invalid eid');
+    }
     players[eid] = player;
 }
 
@@ -19,6 +22,10 @@ function recieveEntities(entities) {
         }
 
         if(!entity.type) {
+            return;
+        }
+
+        if(!entity.eid) {
             return;
         }
         

@@ -15,8 +15,9 @@ class Level {
         Packet.PlayerJoin.listeners.push((pk, ws) => {
             this.addEntity(pk.body.eid, {
                 type: 'player',
-                name: pk.body.name,
-                position: pk.body.position
+                eid: pk.body.eid,
+                position: pk.body.position,
+                // entityData: pk.body
             });
         });
 

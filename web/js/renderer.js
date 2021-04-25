@@ -203,10 +203,10 @@ const renderer = {
             if (!player) return;
 
             push();
-            let coords = worldToCanvas(player.position.x, player.position.z);
+            let coords = worldToCanvas(player.position.x, player.position.z, true);
 
             // Move the origin to player pos
-            translate(coords[0] + renderer.offsetX + renderer.tempOffsetX, coords[1] + renderer.offsetY + renderer.tempOffsetY);
+            translate(coords[0], coords[1]);
 
             // Better player drawing neccessary, can't tell where their pointing!
             ellipse(0, 0, 9, 9);
