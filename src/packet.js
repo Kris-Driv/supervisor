@@ -27,11 +27,12 @@ const Packet = {
         broadcast: true,
 
         decode,
-        encode: (eid, name, position) => {
+        encode: (eid, name, position, skinData = null) => {
             return Packet._encode('player.join', {
                 eid,
                 name,
-                position
+                position,
+                skinData
             });
         },
         handle: (pk, ws) => {

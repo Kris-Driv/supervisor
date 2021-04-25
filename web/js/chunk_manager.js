@@ -56,7 +56,7 @@ function recieveChunks(chunksBase64) {
     })).then((chunks) => {
         (new Promise((resolve, reject) => {
             try {
-                chunks.forEach(chunksX => chunksX.forEach(chunk => recieveChunk(chunk)));
+                chunks.forEach(chunk => recieveChunk(chunk));
                 resolve();
             } catch (e) {
                 reject(e);

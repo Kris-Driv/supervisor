@@ -1,16 +1,22 @@
 const logger = require('./logger.js');
 
 const WebSocket = require('ws');
+
 const Level = require('./level.js');
 const Packet = require('./packet.js');
 const Input = require('./input.js');
+const Command = require('./command.js');
+const Skin = require('./skin.js');
+
+
 const fs = require("fs");
 
 const express = require("express");
-const Command = require('./command.js');
 const app = express();
 
 app.use(express.static("web"));
+app.use('/skins', express.static("skins"));
+
 app.get("/", (req, res) => { 
     res.sendFile(__dirname + "/web/index.html") 
 });
@@ -26,6 +32,9 @@ const levelCache = new Level('pm_level1');
 
 if (!fs.existsSync("cache")){
     fs.mkdirSync("cache");
+}
+if (!fs.existsSync("skins")){
+    fs.mkdirSync("skins");
 }
 
 Packet.Subscribe.listeners = [handleSubscriptions];
