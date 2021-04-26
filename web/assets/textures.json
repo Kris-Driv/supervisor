@@ -1,0 +1,71 @@
+{
+    "size": 16,
+    "image": "textures.png",
+    "blocks": {
+        "2": {
+            "x": 2,
+            "y": 0,
+            "name": "Grass"
+        },
+        "9": {
+            "x": 19,
+            "y": 0,
+            "name": "Water"
+        },
+        "24": {
+            "x": 18,
+            "y": 0,
+            "name": "Sandstone"
+        },
+        "12": {
+            "x": 17,
+            "y": 0,
+            "name": "Sand"
+        },
+        "18": {
+            "x": 7,
+            "y": 0,
+            "name": "Leaves"
+        },
+        "161": {
+            "x": 8,
+            "y": 0,
+            "name": "Other leaves"
+        },
+        "31": {
+            "x": 2,
+            "y": 0,
+            "name": "Plants, grass, dead bush etc."
+        },
+        "175": {
+            "x": 2,
+            "y": 0,
+            "name": "Sunflower -.-"
+        },
+        "11": {
+            "x": 5,
+            "y": 0,
+            "name": "Lava Still"
+        },
+        "10": {
+            "x": 5,
+            "y": 0,
+            "name": "Flowing Lava"
+        },
+        "87": {
+            "x": 12,
+            "y": 0,
+            "name": "Netherrack"
+        },
+        "153": {
+            "x": 13,
+            "y": 0,
+            "name": "Quartz Ore"
+        },
+        "89": {
+            "x": 1,
+            "y": 0,
+            "name": "Glowstone"
+        }
+    }
+}

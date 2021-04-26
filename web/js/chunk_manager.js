@@ -68,3 +68,23 @@ function recieveChunks(chunksBase64) {
         console.err(err);
     });
 }
+
+function getBlockIdAt(x, z) {
+    let chunk = getChunk(x, z);
+    let rx = Math.abs(x % 16);
+    let rz = Math.abs(z % 16);
+
+
+    if(chunk) {
+        try {
+            return Object.values(chunk.layer[rx][rz])[0] ?? '?';
+        } catch (e) {
+            return '!';
+        }
+    }
+    return null;
+}
+
+function getChunk(worldX, worldZ) {
+    return chunks[(worldX >> 4) + ':' + (worldZ >> 4)];
+}

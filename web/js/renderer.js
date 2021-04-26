@@ -67,6 +67,7 @@ const renderer = {
 
     setup: () => {
         renderer.BlockPainter = new FlatColorBlockPainter();
+        // renderer.BlockPainter = new TexturedBlockPainter();
 
         renderer.offsetX = width / 2;
         renderer.offsetY = height / 2;
@@ -264,7 +265,7 @@ const renderer = {
         // Block ID
         let bid = getBlockIdAt(coord[0], coord[1]);
         if (bid) {
-            let txt = `[Block ID: ${bid}]`;
+            let txt = `[Block ID: ${bid ?? null}]`;
             text(txt, mouseX + (txt.length * 12 / 5), mouseY + 18);
         }
     },

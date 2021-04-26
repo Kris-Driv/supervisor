@@ -62,8 +62,8 @@ function controlZoom(event) {
 
 function canvasToWorld(canvasX, canvasY) {
     return [
-        floor((canvasX - renderer.offsetX) * (1 / renderer.scl) / RenderSettings.BLOCK_RESOLUTION),
-        floor((canvasY - renderer.offsetY) * (1 / renderer.scl) / RenderSettings.BLOCK_RESOLUTION),
+        floor( ((canvasX - renderer.offsetX) * (1 / renderer.scl)) / RenderSettings.BLOCK_RESOLUTION),
+        floor( ((canvasY - renderer.offsetY) * (1 / renderer.scl)) / RenderSettings.BLOCK_RESOLUTION),
         getWorldY(canvasX, canvasY)
     ];
 }
@@ -119,22 +119,6 @@ function mouseReleased() {
     renderer.offsetY += renderer.tempOffsetY;
     renderer.tempOffsetX = 0;
     renderer.tempOffsetY = 0;
-}
-
-function getBlockIdAt(x, z) {
-    let cx = x >> 4;
-    let cz = z >> 4;
-    let rx = x % 16;
-    let rz = z % 16;
-    // console.log({x, z, cx, cz, rx, rz});
-
-    let chunk = chunks[cx + ':' + cz] ?? null;
-    // console.log(chunk);
-    if (chunk) {
-        return '...'
-        // return Object.values(chunk.layer[Math.floor(rx)][Math.floor(rz)] ?? [])[0] ?? null;
-    }
-    return null;
 }
 
 function keyPressed() {

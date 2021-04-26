@@ -16,6 +16,7 @@ const app = express();
 
 app.use(express.static("web"));
 app.use('/skins', express.static("skins"));
+app.use('/assets', express.static('web/assets'));
 
 app.get("/", (req, res) => { 
     res.sendFile(__dirname + "/web/index.html") 
