@@ -4,12 +4,26 @@ var depthBrightness = 80;
 var depthBlendMode;
 var depthAlphaOffset = 5;
 
+const RenderSettings = {}
+// Pixels per block
+RenderSettings.BLOCK_RESOLUTION = 4;
+// Chunk size in pixels
+RenderSettings.CHUNK_SIZE = 16 * RenderSettings.BLOCK_RESOLUTION;
+// Buffer width in chunks
+RenderSettings.CHUNKS_IN_BUFFER = 16; // 2x2 = 4
+// Total Buffer size in pixels
+RenderSettings.BUFFER_SIZE = RenderSettings.CHUNKS_IN_BUFFER * RenderSettings.CHUNK_SIZE;
+
 const renderer = {
 
     BlockPainter: null,
 
     Buffer: {
-        SIZE: (16 * 16),
+
+        BLOCK_RESOLUTION: RenderSettings.BLOCK_RESOLUTION,
+        CHUNK_SIZE: RenderSettings.CHUNK_SIZE,
+        SIZE: RenderSettings.BUFFER_SIZE,
+
         loaded: [],
 
         hash(bufferX, bufferY) {
@@ -17,8 +31,8 @@ const renderer = {
         },
 
         getFor(worldX, worldY, create = true) {
-            let i = floor(worldX / renderer.Buffer.SIZE);
-            let j = floor(worldY / renderer.Buffer.SIZE);
+            let i = floor((worldX * RenderSettings.BLOCK_RESOLUTION) / RenderSettings.BUFFER_SIZE);
+            let j = floor((worldY * RenderSettings.BLOCK_RESOLUTION) / RenderSettings.BUFFER_SIZE);
 
             let buff = renderer.Buffer.loaded[renderer.Buffer.hash(i, j)];
 
@@ -30,7 +44,7 @@ const renderer = {
                 return null;
             }
 
-            buff = createGraphics(renderer.Buffer.SIZE, renderer.Buffer.SIZE);
+            buff = createGraphics(RenderSettings.BUFFER_SIZE, RenderSettings.BUFFER_SIZE);
             buff.noStroke();
 
             buff.i = i;
@@ -65,8 +79,8 @@ const renderer = {
                 push();
 
                 translate(
-                    buffer.i * renderer.Buffer.SIZE * renderer.scl + renderer.offsetX + renderer.tempOffsetX,
-                    buffer.j * renderer.Buffer.SIZE * renderer.scl + renderer.offsetY + renderer.tempOffsetY
+                    buffer.i * RenderSettings.BUFFER_SIZE * renderer.scl + renderer.offsetX + renderer.tempOffsetX,
+                    buffer.j * RenderSettings.BUFFER_SIZE * renderer.scl + renderer.offsetY + renderer.tempOffsetY
                 );
 
                 // Draw Map buffer
@@ -79,7 +93,7 @@ const renderer = {
                 // noFill();
                 // stroke('green');
                 // strokeWeight(2);
-                // rect(0, 0, renderer.Buffer.SIZE * renderer.scl, renderer.Buffer.SIZE * renderer.scl);
+                // rect(0, 0, RenderSettings.BUFFER_SIZE * renderer.scl, RenderSettings.BUFFER_SIZE * renderer.scl);
 
                 pop();
             });
@@ -104,17 +118,17 @@ const renderer = {
                 // Quadrant I  & IV
                 let j = buffer.j < 0 ? -1 : 1;
 
-                var chunkBufferX = Math.abs(((chunk.x + (i < 0 ? 1 : 0)) % 16) << 4);
-                var chunkBufferZ = Math.abs(((chunk.z + (j < 0 ? 1 : 0)) % 16) << 4);
+                var chunkBufferX = Math.abs(((chunk.x + (i < 0 ? 1 : 0)) % 16) << 4) * RenderSettings.BLOCK_RESOLUTION;
+                var chunkBufferZ = Math.abs(((chunk.z + (j < 0 ? 1 : 0)) % 16) << 4) * RenderSettings.BLOCK_RESOLUTION;
 
                 // Left
                 if (i < 0) {
-                    chunkBufferX = buffer.width - chunkBufferX - 16;
+                    chunkBufferX = buffer.width - chunkBufferX - RenderSettings.CHUNK_SIZE;
                 }
 
                 // Top
                 if (j < 0) {
-                    chunkBufferZ = buffer.height - chunkBufferZ - 16;
+                    chunkBufferZ = buffer.height - chunkBufferZ - RenderSettings.CHUNK_SIZE;
                 }
 
                 for (let x = 0; x < 16; x++) {
@@ -122,12 +136,18 @@ const renderer = {
                         let blockId = Object.values(chunk.layer[x][z])[0];
                         let y = Object.keys(chunk.layer[x][z])[0];
 
-                        renderer.BlockPainter.paint(buffer, chunkBufferX + x, y, chunkBufferZ + z, blockId);
+                        renderer.BlockPainter.paint(
+                            buffer, 
+                            chunkBufferX + (x * renderer.Buffer.BLOCK_RESOLUTION), 
+                            y, 
+                            chunkBufferZ + (z * renderer.Buffer.BLOCK_RESOLUTION), 
+                            blockId
+                        );
 
-                        if (chunkBufferX + x >= buffer.width) {
+                        if (chunkBufferX + (x * renderer.Buffer.BLOCK_RESOLUTION) >= buffer.width) {
                             console.log(`Outside buffer rendering on x axis detected. (Target: ${chunkBufferX + x}) (Buffer: ${buffer.i}, ${buffer.j}) (Chunk: ${chunk.x}, ${chunk.z})`);
                         }
-                        if (chunkBufferZ + z >= buffer.height) {
+                        if (chunkBufferZ + (z * renderer.Buffer.BLOCK_RESOLUTION) >= buffer.height) {
                             console.log(`Outside buffer rendering on y axis detected. (Target: ${chunkBufferZ + z}) (Buffer: ${buffer.i}, ${buffer.j}) (Chunk: ${chunk.x}, ${chunk.z})`);
                         }
                     }
@@ -141,7 +161,7 @@ const renderer = {
     },
 
     renderGridOverlay: () => {
-        var chunkSize = 16 * (renderer.scl);
+        var chunkSize = RenderSettings.CHUNK_SIZE * (renderer.scl);
         var xOff = (renderer.offsetX + renderer.tempOffsetX) % chunkSize;
         var yOff = (renderer.offsetY + renderer.tempOffsetY) % chunkSize;
         var linesInX = floor(width / chunkSize) + 1;
@@ -160,14 +180,24 @@ const renderer = {
     },
 
     renderBufferOutlines: () => {
-        // noFill();
-        // stroke('black');
-        // rect(
-        //     renderer.offsetX + renderer.tempOffsetX,
-        //     renderer.offsetY + renderer.tempOffsetY,
-        //     primaryBufferImage.width * renderer.scl,
-        //     primaryBufferImage.height * renderer.scl
-        // );
+        noFill();
+        stroke('green');
+        strokeWeight(2);
+        Object.values(renderer.Buffer.loaded).forEach(buffer => {
+            push();
+
+            translate(
+                buffer.i * RenderSettings.BUFFER_SIZE * renderer.scl + renderer.offsetX + renderer.tempOffsetX,
+                buffer.j * RenderSettings.BUFFER_SIZE * renderer.scl + renderer.offsetY + renderer.tempOffsetY
+            );
+
+            noFill();
+            stroke('green');
+            strokeWeight(2);
+            rect(0, 0, RenderSettings.BUFFER_SIZE * renderer.scl, RenderSettings.BUFFER_SIZE * renderer.scl);
+
+            pop();
+        });
     },
 
     renderAxis: () => {

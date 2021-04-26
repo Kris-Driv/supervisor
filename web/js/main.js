@@ -62,8 +62,8 @@ function controlZoom(event) {
 
 function canvasToWorld(canvasX, canvasY) {
     return [
-        floor((canvasX - renderer.offsetX) * (1 / renderer.scl)),
-        floor((canvasY - renderer.offsetY) * (1 / renderer.scl)),
+        floor((canvasX - renderer.offsetX) * (1 / renderer.scl) / RenderSettings.BLOCK_RESOLUTION),
+        floor((canvasY - renderer.offsetY) * (1 / renderer.scl) / RenderSettings.BLOCK_RESOLUTION),
         getWorldY(canvasX, canvasY)
     ];
 }
@@ -139,7 +139,7 @@ function getBlockIdAt(x, z) {
 
 function keyPressed() {
     if (keyCode === 32) {
-        drawOverlay = !drawOverlay;
+        showGridOverlay = !showGridOverlay;
         return false;
     }
 }

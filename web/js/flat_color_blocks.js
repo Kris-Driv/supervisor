@@ -8,12 +8,12 @@ function FlatColorBlockPainter() {
         let blockColor = this.getBlockColor(blockId);
 
         buffer.fill(blockColor);
-        buffer.rect(x, z, 1);
+        buffer.rect(x, z, renderer.Buffer.BLOCK_RESOLUTION);
 
-        this.shafeForDepth(buffer, x, y, z, blockId);
+        this.shadeForDepth(buffer, x, y, z, blockId);
     }
 
-    this.shafeForDepth = function(buffer, x, y, z, blockId) {
+    this.shadeForDepth = function(buffer, x, y, z, blockId) {
         let alpha = 0;
 
         this.shadingConfiguration.forEach((settings) => {
@@ -26,7 +26,7 @@ function FlatColorBlockPainter() {
         
 
         buffer.fill(color(100, 100, 100, alpha));
-        buffer.rect(x, z, 1);
+        buffer.rect(x, z, renderer.Buffer.BLOCK_RESOLUTION);
     }
 
     this.blockColorMap = {
