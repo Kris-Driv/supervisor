@@ -6,7 +6,7 @@ var depthAlphaOffset = 5;
 
 const RenderSettings = {}
 // Pixels per block
-RenderSettings.BLOCK_RESOLUTION = 4;
+RenderSettings.BLOCK_RESOLUTION = 1;
 // Chunk size in pixels
 RenderSettings.CHUNK_SIZE = 16 * RenderSettings.BLOCK_RESOLUTION;
 // Buffer width in chunks
