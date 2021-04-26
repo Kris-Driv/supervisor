@@ -1,8 +1,5 @@
 var scl = 5;
 
-var drawOverlay = true;
-var drawPlayers = true;
-
 var depthBrightness = 80;
 var depthBlendMode;
 var depthAlphaOffset = 5;
@@ -88,16 +85,11 @@ const renderer = {
             });
 
         // Render grid overlay
-        if (drawOverlay) {
-            renderer.renderGridOverlay();
-            renderer.renderMouseCoordinates();
-            renderer.renderBufferOutlines();
-            renderer.renderAxis();
-        }
-
-        if (drawPlayers) {
-            renderer.drawPlayers();
-        }
+        if(showGridOverlay) renderer.renderGridOverlay();
+        if(showCoordinates) renderer.renderMouseCoordinates();
+        if(showBufferOutlines) renderer.renderBufferOutlines();
+        if(showAxis) renderer.renderAxis();
+        if(showPlayers) renderer.drawPlayers();
     },
 
     magic: 32,

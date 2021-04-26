@@ -1,6 +1,13 @@
 var anchor;
 var afterRender = [];
 
+var showZoomPath = true;
+var showGridOverlay = true;
+var showBufferOutlines = true;
+var showCoordinates = true;
+var showPlayers = true;
+var showAxis = true;
+
 const defaultAddress = 'ws://localhost:27095';
 
 function setup() {
@@ -23,13 +30,34 @@ function draw() {
     afterRender = [];
 }
 
+let zoomPath = [];
+
 function controlZoom(event) {
     let zoom = event.deltaY / 100;
+
+    let middle = canvasToWorld(width / 2, height / 2);
 
     renderer.scl += zoom;
     renderer.scl = max(0.5, min(renderer.scl, 5));
 
+    let old = worldToCanvas(middle[0], middle[1], true);
+    zoomPath.push(old);
+
     event.preventDefault();
+
+    if (zoomPath.length > 20) zoomPath.shift();
+
+    if(!showZoomPath) return;
+    afterRender.push(() => {
+        stroke('#fff');
+        for (var i = zoomPath.length - 1; i >= 0; i--) {
+            let last = zoomPath[i + 1];
+            if (!last) continue;
+            let curr = zoomPath[i];
+
+            line(last[0], last[1], curr[0], curr[1]);
+        }
+    });
 }
 
 function canvasToWorld(canvasX, canvasY) {
@@ -58,10 +86,10 @@ function getWorldY(x, z) {
     let rx = x % 16;
     let rz = z % 16;
     // console.log({x, z, cx, cz, rx, rz});
-    
+
     let chunk = chunks[cx + ':' + cz] ?? null;
     // console.log(chunk);
-    if(chunk) {
+    if (chunk) {
         return Object.keys(chunk.layer[Math.floor(rx)][Math.floor(rz)] ?? [])[0] ?? 255;
     }
     return 255;
@@ -99,10 +127,10 @@ function getBlockIdAt(x, z) {
     let rx = x % 16;
     let rz = z % 16;
     // console.log({x, z, cx, cz, rx, rz});
-    
+
     let chunk = chunks[cx + ':' + cz] ?? null;
     // console.log(chunk);
-    if(chunk) {
+    if (chunk) {
         return '...'
         // return Object.values(chunk.layer[Math.floor(rx)][Math.floor(rz)] ?? [])[0] ?? null;
     }
@@ -110,7 +138,7 @@ function getBlockIdAt(x, z) {
 }
 
 function keyPressed() {
-    if(keyCode === 32) {
+    if (keyCode === 32) {
         drawOverlay = !drawOverlay;
         return false;
     }
@@ -125,6 +153,4 @@ function requestLevel() {
 
 function clearChunks() {
     chunks = [];
-    responsiveMapBufferImage = createGraphics(width, height);
-    depthBufferImage = createGraphics(width, height);
 }

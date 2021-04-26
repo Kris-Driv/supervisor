@@ -61,7 +61,6 @@
 
         #control-bar {
             height: 46px;
-            display: fixed;
             flex: 1;
             top: 0;
             left: 0;
@@ -69,6 +68,18 @@
             padding: 0 2rem 0 2rem;
             border-bottom: 1px solid #3d3d3d;
             z-index: 100;
+        }
+
+        #settings-bar {
+            height: 46px;
+            flex: 1;
+            top: 0;
+            left: 0;
+            background-color: #212121;
+            padding: 0 2rem 0 2rem;
+            border-bottom: 1px solid #3d3d3d;
+            z-index: 100;
+            display: none;
         }
 
         .button-wrapper {
@@ -167,6 +178,12 @@
             width: 50px;
             border: 1px solid red;
         }
+        .block {
+            display: block !important;
+        }
+        #settings-options {
+            padding: 12px 5px;
+        }
     </style>
     <header>
         <div id="control-bar">
@@ -174,6 +191,7 @@
                 <div class="button-wrapper">
                     <button onclick="requestLevel()">Request Level</button>
                     <button onclick="clearChunks()">Clear Chunks</button>
+                    <button onclick="toggleSettings()">Settings</button>
                 </div>
                 <div class="right-inputs">
                     <input type="text" name="address" id="address">
@@ -181,6 +199,43 @@
                         id="connect-button"
                         onclick="connectPocketCore(document.getElementById('address').value, handleSocketOpen, handleSocketClose)">Connect</button>
                     <span id="connection-light"></span>
+                </div>
+            </div>
+        </div>
+        <div id="settings-bar">
+            <div class="flex-container" id="settings-options">
+                <div class="form-group">
+                    <input type="checkbox" onclick="toggleGridOverlay(event)" name="render-grid" id="render-grid">
+                    <label for="render-grid">Grid Overlay</label>
+                </div>
+
+                <div class="form-group">
+                    <input type="checkbox" onclick="toggleCoordinates(event)" name="render-coordinates" id="render-coordinates">
+                    <label for="render-coordinates">Coordinates</label>
+                </div>
+
+                <div class="form-group">
+                    <input type="checkbox" onclick="toggleZoomPath(event)" name="render-zoom-path" id="render-zoom-path">
+                    <label for="render-zoom-path">Zoom Path</label>
+                </div>
+
+                <div class="form-group">
+                    <input type="checkbox" onclick="toggleBufferOutline(event)" name="render-buffer-outline" id="render-buffer-outline">
+                    <label for="render-buffer-outline">Buffer Outline</label>
+                </div>
+
+                <div class="form-group">
+                    <input type="checkbox" onclick="togglePlayers(event)" name="render-players" id="render-players">
+                    <label for="render-players">Players</label>
+                </div>
+
+                <div class="form-group">
+                    <input type="checkbox" onclick="toggleAxis(event)" name="render-axis" id="render-axis">
+                    <label for="render-axis">Axis</label>
+                </div>
+
+                <div class="form-group" onclick="resetOffsets(event)">
+                    <button>Reset Offsets</button>
                 </div>
             </div>
         </div>
@@ -209,6 +264,68 @@
 </body>
 
 <script>
+    let renderGrid = document.getElementById('render-grid');
+    renderGrid.checked = showGridOverlay;
+
+    let renderCoordinates = document.getElementById('render-coordinates');
+    renderCoordinates.checked = showCoordinates;
+
+    let renderZoomPath = document.getElementById('render-zoom-path');
+    renderZoomPath.checked = showCoordinates;
+
+    let renderPlayers = document.getElementById('render-players');
+    renderPlayers.checked = showPlayers;
+
+    let renderAxis = document.getElementById('render-axis');
+    renderAxis.checked = showAxis;
+
+    let renderBufferOutline = document.getElementById('render-buffer-outline');
+    renderBufferOutline.checked = showBufferOutlines;
+
+    function resetOffsets() {
+        renderer.offsetX = 0;
+        renderer.offsetY = 0;
+        renderer.tempOffsetX = 0;
+        renderer.tempOffsetY = 0;
+    }
+
+    function toggleZoomPath(event) {
+        showZoomPath = !event.target.checked;
+    }
+
+    function toggleGridOverlay(event) {
+        showGridOverlay = event.target.checked;
+
+        console.log(showGridOverlay);
+    }
+
+    function toggleBufferOutline(event) {
+        showBufferOutlines = event.target.checked;
+    }
+
+    function toggleCoordinates(event) {
+        showCoordinates = event.target.checked;
+    }
+
+    function togglePlayers(event) {
+        showPlayers = event.target.checked;
+    }
+
+    function toggleAxis(event) {
+        showAxis = event.target.checked;
+    }
+
+    var settingsOpen = false;
+    function toggleSettings() {
+        let div = document.getElementById('settings-bar');
+        settingsOpen = !settingsOpen;
+
+        if(settingsOpen) {
+            div.classList.add('block');
+        } else {
+            div.classList.remove('block');
+        }
+    }
     function setupInterface() {
 
         document.getElementById('address').value = defaultAddress;

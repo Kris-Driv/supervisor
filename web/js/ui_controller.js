@@ -68,7 +68,7 @@ const UI = {
             push();
             // Configure
             // y - (18 + containerHeight)
-            translate(x + 18, y - (containerHeight + (18 - (i > 0 ? 10 : 0))) * i);
+            translate(x + 18, y - (containerHeight + (18 - (i > 0 ? 10 : 0))) * i - containerHeight - 18);
 
             // Configure Text settings
             textAlign(LEFT);
