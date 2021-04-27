@@ -4,6 +4,15 @@ var depthBrightness = 80;
 var depthBlendMode;
 var depthAlphaOffset = 5;
 
+
+var showZoomPath = true;
+var showGridOverlay = true;
+var showBufferOutlines = true;
+var showCoordinates = true;
+var showPlayers = true;
+var showAxis = true;
+var showCenter = true;
+
 const RenderSettings = {}
 // Pixels per block
 RenderSettings.BLOCK_RESOLUTION = 1;
@@ -119,6 +128,7 @@ const renderer = {
         if(showBufferOutlines) renderer.renderBufferOutlines();
         if(showAxis) renderer.renderAxis();
         if(showPlayers) renderer.drawPlayers();
+        if(showCenter) renderer.renderCenter();
     },
 
     magic: 32,
@@ -252,6 +262,14 @@ const renderer = {
 
             pop();
         });
+    },
+
+    renderCenter: () => {
+        push();
+        strokeWeight(4);
+        stroke('#fff');
+        point(width / 2, height / 2);
+        pop();
     },
 
     renderMouseCoordinates: () => {

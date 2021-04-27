@@ -1,19 +1,13 @@
 var anchor;
 var afterRender = [];
-
-var showZoomPath = true;
-var showGridOverlay = true;
-var showBufferOutlines = true;
-var showCoordinates = true;
-var showPlayers = true;
-var showAxis = true;
+var beforeRender = [];
 
 const defaultAddress = 'ws://localhost:27095';
 
 function setup() {
-    var cnv = createCanvas(920, 640);
+    var cnv = createCanvas(displayWidth, displayHeight);
     cnv.parent(document.getElementById('canvas-container'));
-    cnv.mouseWheel(controlZoom);
+    cnv.mouseWheel(UI.controlZoom);
 
     // Prepare
     renderer.setup();
@@ -23,41 +17,14 @@ function setup() {
 function draw() {
     background('#1f1f1f');
 
+    beforeRender.forEach(cb => cb());
+    beforeRender = [];
+
     UI.update();
     renderer.render();
 
     afterRender.forEach(cb => cb());
     afterRender = [];
-}
-
-let zoomPath = [];
-
-function controlZoom(event) {
-    let zoom = event.deltaY / 100;
-
-    let middle = canvasToWorld(width / 2, height / 2);
-
-    renderer.scl += zoom;
-    renderer.scl = max(0.5, min(renderer.scl, 5));
-
-    let old = worldToCanvas(middle[0], middle[1], true);
-    zoomPath.push(old);
-
-    event.preventDefault();
-
-    if (zoomPath.length > 20) zoomPath.shift();
-
-    if(!showZoomPath) return;
-    afterRender.push(() => {
-        stroke('#fff');
-        for (var i = zoomPath.length - 1; i >= 0; i--) {
-            let last = zoomPath[i + 1];
-            if (!last) continue;
-            let curr = zoomPath[i];
-
-            line(last[0], last[1], curr[0], curr[1]);
-        }
-    });
 }
 
 function canvasToWorld(canvasX, canvasY) {

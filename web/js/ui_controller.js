@@ -1,3 +1,5 @@
+let zoomPath = [];
+
 const UI = {
 
     fpsCounter: null,
@@ -78,7 +80,7 @@ const UI = {
             rect(0, 0, containerHeight + textWidth(name) + padding, faceSize + padding * 2);
 
             // Cool little arrow
-            if(count === 1) {
+            if (count === 1) {
                 stroke('#a1a1a1');
                 strokeWeight(2);
                 line(-4, containerHeight - 4, -4, containerHeight + 4);
@@ -95,12 +97,57 @@ const UI = {
             fill('pink');
             rect(padding, padding, faceSize, faceSize);
 
-            if(player.face) {
+            if (player.face) {
                 player.face.render(padding, padding, faceSize, faceSize);
             }
 
             pop();
         });
+    },
+
+    controlZoom: (event) => {
+
+        let zoom = event.deltaY / 100;
+
+        let before = canvasToWorld(width / 2, height / 2);
+
+        let prevScl = renderer.scl;
+        let newScl = max(0.5, min(prevScl + zoom, 5));
+
+        renderer.scl = newScl;
+        let after = canvasToWorld(width / 2, height / 2);
+
+        let deltaX = before[0] - after[0];
+        let deltaY = before[1] - after[1];
+
+        // Let's get this delta to canvas coordinates
+        let deltaCanvasX = deltaX * 2;
+        let deltaCanvasY = deltaY * 2;
+
+        renderer.offsetX -= deltaCanvasX / 2;
+        renderer.offsetY -= deltaCanvasY / 2;
+
+
+
+        let old = worldToCanvas(before[0], before[1], true);
+        zoomPath.push(old);
+
+        event.preventDefault();
+
+        if (zoomPath.length > 20) zoomPath.shift();
+
+        if (!showZoomPath) return;
+        afterRender.push(() => {
+            stroke('#fff');
+            for (var i = zoomPath.length - 1; i >= 0; i--) {
+                let last = zoomPath[i + 1];
+                if (!last) continue;
+                let curr = zoomPath[i];
+
+                line(last[0], last[1], curr[0], curr[1]);
+            }
+        });
     }
+
 
 }
