@@ -3,16 +3,39 @@ var players = [];
 function addPlayer(eid, player) {
     if(!eid) {
         UI.error('invalid eid');
+        return;
     }
+    if(!player.position) {
+        UI.error('cant add player without position');
+        return;
+    }
+
     players[eid] = player;
+
+    if(player.face) {
+        handleFaceUpdate(eid, player.face);
+    }
+}
+
+function handleFaceUpdate(eid, pixelArray) {
+    player = getPlayer(eid);
+    player.face = new Face(atob(pixelArray));
 }
 
 function removePlayer(eid, player) {
-    players[eid] = player;
+    if(players[eid]) {
+        players.splice(eid, 1);
+    }
 }
 
+function getPlayer(eid) {
+    return players[eid];
+} 
+
 function updatePosition(eid, position) {
-    players[eid].position = position;
+    if(players[eid]) {
+        players[eid].position = position;
+    }
 }
 
 function recieveEntities(entities) {

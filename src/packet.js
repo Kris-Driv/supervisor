@@ -27,12 +27,12 @@ const Packet = {
         broadcast: true,
 
         decode,
-        encode: (eid, name, position, skinData = null) => {
+        encode: (eid, name, position, face = null) => {
             return Packet._encode('player.join', {
                 eid,
                 name,
                 position,
-                skinData
+                face
             });
         },
         handle: (pk, ws) => {
@@ -55,6 +55,24 @@ const Packet = {
         },
         handle: (pk, ws) => {
             logger.info(`${pk.body.name} left the game`);
+            return true;
+        }
+    },
+
+    PlayerFace: {
+        listeners: [],
+        name: "player.face",
+        broadcast: true,
+
+        decode,
+        encode: (eid, pixelArray) => {
+            return Packet._encode('player.face', {
+                eid,
+                pixelArray,
+                size: 64
+            });
+        },
+        handle: (pk, ws) => {
             return true;
         }
     },
@@ -103,6 +121,9 @@ const Packet = {
             return Packet._encode('ping', { time });
         },
         handle: (pk, ws) => {
+            ws.send(JSON.stringify(pk));
+            ws.send('Hello! response to ping packet');
+
             return true;
         }
     },

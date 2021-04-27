@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../../../PM3/plugins/MyPath"
+		},
+		{
+			"path": "../../../PM4/src"
+		},
+		{
+			"path": "../.."
+		}
+	]
+}

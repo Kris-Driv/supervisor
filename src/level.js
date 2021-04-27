@@ -25,6 +25,17 @@ class Level {
             this.removeEntity(pk.body.eid);
         });
 
+        Packet.PlayerFace.listeners.push((pk, ws) => {
+            let eid = pk.body.eid ?? 'missing';
+            let player = this.entities[eid];
+            if(!player) {
+                logger.error('Recieved face packet for non existent entity. eid: ' + eid);
+                return;
+            }
+
+            player.face = pk.body.pixelArray;
+        });
+
         Packet.EntityPosition.listeners.push((pk, ws) => {
             this.updateEntityPosition(pk.body.eid, pk.body.position);
         });

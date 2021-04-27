@@ -59,8 +59,6 @@ const UI = {
         let containerHeight = (faceSize + padding * 2);
         let count = players.length;
 
-        console.log(count);
-
         players.forEach((player, i) => {
 
             let name = player.name ?? 'UNKNOWN';
@@ -88,6 +86,7 @@ const UI = {
             }
 
             // Name
+            strokeWeight(1);
             fill('#fff');
             text(name, faceSize + padding * 2, textSize() + padding);
 
@@ -95,6 +94,10 @@ const UI = {
             noStroke();
             fill('pink');
             rect(padding, padding, faceSize, faceSize);
+
+            if(player.face) {
+                player.face.render(padding, padding, faceSize, faceSize);
+            }
 
             pop();
         });

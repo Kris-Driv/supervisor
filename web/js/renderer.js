@@ -65,12 +65,26 @@ const renderer = {
     tempOffsetX: 0,
     tempOffsetY: 0,
 
+    mapIcons: null,
+
+    minecraftFont: null,
+
     setup: () => {
         renderer.BlockPainter = new FlatColorBlockPainter();
         // renderer.BlockPainter = new TexturedBlockPainter();
 
         renderer.offsetX = width / 2;
         renderer.offsetY = height / 2;
+
+        // TODO: move to preload
+        loadImage('/assets/map_icons.png', (img) => {
+            renderer.mapIcons = img;
+        });
+
+        loadFont('/assets/minecraft_font.otf', (font) => {
+            renderer.minecraftFont = font;
+            textFont(font);
+        })
     },
 
     render: () => {
@@ -222,7 +236,6 @@ const renderer = {
         noStroke();
         fill('red');
         players.forEach(player => {
-            // TODO: fix
             if (!player) return;
 
             push();
@@ -231,16 +244,11 @@ const renderer = {
             // Move the origin to player pos
             translate(coords[0], coords[1]);
 
-            // Better player drawing neccessary, can't tell where their pointing!
-            ellipse(0, 0, 9, 9);
-
             if (player.position.yaw !== undefined) {
-                stroke('#fff');
-                strokeWeight(3);
-
-                rotate(radians(player.position.yaw + 90));
-                line(0, 0, 5, 0);
+                rotate(radians(player.position.yaw - 180));
             }
+
+            image(renderer.mapIcons, -16, -16, 32, 32, 0, 0, 16, 16);
 
             pop();
         });
@@ -266,7 +274,7 @@ const renderer = {
         let bid = getBlockIdAt(coord[0], coord[1]);
         if (bid) {
             let txt = `[Block ID: ${bid ?? null}]`;
-            text(txt, mouseX + (txt.length * 12 / 5), mouseY + 18);
+            text(txt, mouseX + 20, mouseY + 18);
         }
     },
 

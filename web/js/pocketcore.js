@@ -56,13 +56,16 @@ function handlePocketcorePacket(event) {
         case 'player.join':
             UI.log('Player ' + response.body.name + ' has joined the game');
 
-            console.log(response.body);
+            if(!response.body.position) {
+                UI.log('Player rejected for not having position');
+                return;
+            }
 
             addPlayer(response.body.eid ?? 0, {
                 name: response.body.name,
                 eid: response.body.eid,
                 position: response.body.position,
-                skinData: response.body.skinData ?? null
+                face: null
             });
 
             break;
@@ -71,6 +74,18 @@ function handlePocketcorePacket(event) {
             UI.log('Player ' + response.body.name + ' has left game');
 
             removePlayer(response.body.eid);
+            break;
+
+        case 'player.face':
+            let player = getPlayer(response.body.eid);
+            if(!player) {
+                UI.log('Got face for invalid player');
+                return;
+            }
+            UI.log('Got face for player: ' + player.name);
+
+            handleFaceUpdate(player.eid, response.body.pixelArray);
+
             break;
 
         case 'entity.position':

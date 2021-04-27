@@ -86,6 +86,6 @@ function string_chop(str, size) {
     return size > 0 ? str.match(new RegExp('.{1,' + size + '}', 'g')) : [str];
 }
 
-Packet.PlayerJoin.listeners.push(Skin.onPlayerJoin);
+// Packet.PlayerJoin.listeners.push(Skin.onPlayerJoin);
 
 module.exports = Skin;

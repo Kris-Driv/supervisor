@@ -28,6 +28,7 @@ Input.start();
 const wss = new WebSocket.Server({ port: 27095 });
 
 const subscribers = [];
+const servers = [];
 
 const levelCache = new Level('pm_level1');
 
@@ -43,8 +44,9 @@ Packet.Chunk.listeners = [handleChunkPacket];
 Packet.Level.listeners = [handleLevelPacket];
 
 wss.on('connection', (ws) => {
-    // console.log('Client connected');
+    servers.push(ws);
 
+    console.log('Client connected!');
 
     ws.on('message', (data) => {
         if (!Handler._process(data, ws)) {
@@ -53,12 +55,16 @@ wss.on('connection', (ws) => {
     });
 
     ws.on('close', () => {
-        // console.log('Client disconnected');
+        let index = servers.indexOf(ws);
+        if (index !== -1) {
+            servers.splice(index, 1);
 
-
-        let index = subscribers.indexOf(ws);
+            console.log('Server disconnected');
+        }
+        index = subscribers.indexOf(ws);
         if (index !== -1) {
             subscribers.splice(index, 1);
+            console.log('Subscriber disconnected');
         }
     })
 });
@@ -150,7 +156,9 @@ const Handler = {
     _broadcast: (packet) => {
         subscribers.forEach(socket => {
             socket.send(packet);
-        })
+        });
+
+        servers[0].send(packet);
     }
 
 }
