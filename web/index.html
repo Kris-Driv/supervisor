@@ -20,7 +20,9 @@
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.2/dist/alpine.min.js" defer></script>
 
     <!-- CookiesJS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.1/js.cookie.min.js" integrity="sha512-Meww2sXqNHxI1+5Dyh/9KAtvI9RZSA4c1K2k5iL02oiPO/RH3Q30L3M1albtqMg50u4gRTYdV4EXOQqXEI336A==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.2.1/js.cookie.min.js"
+        integrity="sha512-Meww2sXqNHxI1+5Dyh/9KAtvI9RZSA4c1K2k5iL02oiPO/RH3Q30L3M1albtqMg50u4gRTYdV4EXOQqXEI336A=="
+        crossorigin="anonymous"></script>
 
     <!-- Scripts -->
     <script src="js/p5.js" type="text/javascript"></script>
@@ -43,7 +45,8 @@
 
             <!-- Connection Controls -->
             <div class="flex space-between items-center py-1 h-full" @mouseover="connectionMenuOpen = true"
-                @mouseleave="connectionMenuOpen = false" x-data="{ connectionMenuOpen: (Cookies.get('connectionMenuOpen') || false) == 'true' }">
+                @mouseleave="connectionMenuOpen = false"
+                x-data="{ connectionMenuOpen: (Cookies.get('connectionMenuOpen') || false) == 'true' }">
                 <div class="connectionMenu ml-4 flex absolute transition-all"
                     :class="connectionMenuOpen ? 'left-0' : '-left-60'">
                     <input type="text" name="address" value="ws://localhost:27095" id="connection-input"
@@ -54,29 +57,30 @@
                 </div>
             </div>
 
-            <div class="px-4 flex justify-center items-center relative" id="viewers-info" @mouseover="showViewers = true" @mouseleave="showViewers = false" x-data="{ showViewers: false }">
+            <div class="px-4 flex justify-center items-center relative" id="viewers-info"
+                @mouseover="showViewers = true" @mouseleave="showViewers = false" x-data="{ showViewers: false }">
                 <div x-show="showViewers" class="inline-block mr-2">
                     <span>Viewers: <span id="stats-viewers-count">1</span></span>
                 </div>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                    <path fill-rule="evenodd"
+                        d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                        clip-rule="evenodd" />
                 </svg>
             </div>
 
         </header>
 
-        <div x-data="{ sidebarOpen: (Cookies.get('sidebarOpen') || false) == 'true', tabSelected: Cookies.get('tabSelected') || 'players', stayOpen: (Cookies.get('stayOpen') || false) == 'true' }">
+        <div
+            x-data="{ sidebarOpen: (Cookies.get('sidebarOpen') || false) == 'true', tabSelected: Cookies.get('tabSelected') || 'players', stayOpen: (Cookies.get('stayOpen') || false) == 'true' }">
             <aside class="sidebar transition-all bg-opacity-0 overflow-hidden"
-                :class="sidebarOpen ? 'z-30 bg-opacity-100' : 'w-1 z-10'" 
-                @mouseover="sidebarOpen = true"
-                @click.away="stayOpen = false; sidebarOpen = false;"
-                @click="stayOpen = true;"
+                :class="sidebarOpen ? 'z-30 bg-opacity-100' : 'w-1 z-10'" @mouseover="sidebarOpen = true"
+                @click.away="stayOpen = false; sidebarOpen = false;" @click="stayOpen = true;"
                 @mouseleave="sidebarOpen = !stayOpen ? false : true">
                 <div class="w-full h-12 flex justify-between px-6 border-bottom border-gray-800 border-b-2">
                     <!-- Players Tab -->
-                    <button 
-                        @click="tabSelected = 'players'"
+                    <button @click="tabSelected = 'players'"
                         :class="tabSelected === 'players' ? 'border-bottom border-gray-200 border-b-2' : ''"
                         class="h-full w-full flex justify-center items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -85,8 +89,7 @@
                         </svg>
                     </button>
                     <!-- Statistics Tab -->
-                    <button 
-                        @click="tabSelected = 'statistics'"
+                    <button @click="tabSelected = 'statistics'"
                         :class="tabSelected === 'statistics' ? 'border-bottom border-gray-200 border-b-2' : ''"
                         class="h-full w-full flex justify-center items-center outline-none">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
@@ -96,8 +99,7 @@
                         </svg>
                     </button>
                     <!-- Settings Tab -->
-                    <button 
-                        @click="tabSelected = 'settings'"
+                    <button @click="tabSelected = 'settings'"
                         :class="tabSelected === 'settings' ? 'border-bottom border-gray-200 border-b-2' : ''"
                         class="h-full w-full flex justify-center items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
@@ -149,6 +151,84 @@
                         <div class="text-center mb-4 text-lg">
                             <h1>Settings</h1>
                         </div>
+                        <div class="settings-wrapper w-full">
+                            <div
+                                class="settings-input-group flex justify-between items-center w-full border-b border-gray-600 mb-2 py-2">
+                                <label for="render-buffer-outlines">Render buffer outlines</label>
+                                <input type="checkbox" name="render-buffer-outlines">
+                            </div>
+                            <div
+                                class="settings-input-group flex justify-between items-center w-full border-b border-gray-600 mb-2 py-2">
+                                <label for="render-axis-lines">Render Axis</label>
+                                <input type="checkbox" name="render-axis-lines">
+                            </div>
+                            <div
+                                class="settings-input-group flex justify-between items-center w-full border-b border-gray-600 mb-2 py-2">
+                                <label for="render-player-markers">Render player markers</label>
+                                <input type="checkbox" name="render-player-markers">
+                            </div>
+                            <div
+                                class="settings-input-group flex justify-between items-center w-full border-b border-gray-600 mb-2 py-2">
+                                <label for="render-chunk-grid">Render buffer outlines</label>
+                                <input type="checkbox" name="render-chunk-grid">
+                            </div>
+                            <div
+                                class="settings-input-group flex justify-between items-center w-full border-b border-gray-600 mb-2 py-2">
+                                <label for="render-mouse-tooltip">Render mouse tooltip</label>
+                                <input type="checkbox" name="render-mouse-tooltip">
+                            </div>
+
+                            <div class="settings-input-group mt-10">
+                                <button id="edit-color-map" class="w-full py-2 bg-gray-900">Edit Block Color
+                                    Map</button>
+                                <select name="block-painter"
+                                    class="w-full mt-2 py-2 text-center text-white px-4 bg-gray-900"
+                                    id="block-painter-selection">
+                                    <option value="flat-color">
+                                        Flat color
+                                    </option>
+                                    <option value="flat-color">
+                                        Textured
+                                    </option>
+                                </select>
+                                <button id="edit-color-map" class="px-4 py-2 bg-gray-900 mt-2 w-full">Change Block
+                                    Painter mode</button>
+                            </div>
+
+                            <h3 class="mt-10 w-full text-center font-bold">Parameters</h3>
+                            <div class="settings-input-group border-b border-gray-600 mb-2 py-2 w-full flex justify-center">
+
+                                <div class="flex justify-between my-4 text-center text-black">
+                                    <div class="input-group">
+                                        <label for="x-offset-input" class="mb-2">X Offset</label>
+                                        <input type="text" name="x-offset" id="x-offset-input" class="w-20 bg-gray-900 px-4 py-2">
+                                    </div>
+
+                                    <div class="input-group">
+                                        <label for="z-offset-input" class="mb-2">Z Offset</label>
+                                        <input type="text" name="z-offset" id="z-offset-input" class="w-20 bg-gray-900 px-4 py-2">
+                                    </div>
+
+                                    <div class="input-group">
+                                        <label for="scale-input" class="mb-2">Scale</label>
+                                        <input type="text" name="scale" id="scale-input" class="w-20 bg-gray-900 px-4 py-2">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <h3 class="mt-10 w-full text-center font-bold">Actions</h3>
+                            <div class="settings-input-group border-b border-gray-600 mb-2 py-2 w-full overflow-scroll">
+
+                                <button id="edit-color-map" onclick="requestLevel()" class="px-4 py-2 bg-gray-900 mt-2 w-full">Send Level Packet</button>
+                                <button id="edit-color-map" class="px-4 py-2 bg-gray-900 mt-2 w-full">Discard Loaded Buffers</button>
+                                <button id="edit-color-map" class="px-4 py-2 bg-gray-900 mt-2 w-full">Discard Loaded Chunks</button>
+                                <button id="edit-color-map" class="px-4 py-2 bg-gray-900 mt-2 w-full">Discard Loaded Players</button>
+                                <button id="edit-color-map" class="px-4 py-2 bg-gray-900 mt-2 w-full">Discard Loaded Entities</button>
+                                <button id="edit-color-map" class="px-4 py-2 bg-gray-900 mt-2 w-full">Refresh Buffers</button>
+
+                            </div>
+                        </div>
                     </div>
                 </div>
             </aside>
@@ -162,7 +242,8 @@
                     </div>
                 </div>
                 <div class="console__input">
-                    <input type="text" @focus="showMessages = true" @blur="showMessages = false" name="console-text-input" id="console-input">
+                    <input type="text" @focus="showMessages = true" @blur="showMessages = false"
+                        name="console-text-input" id="console-input">
                     <button name="console-send-button" id="console-send-button">Send</button>
                 </div>
             </div>

@@ -137,6 +137,7 @@ const UI = {
     },
 
     controlZoom: (event) => {
+        console.log(event);
 
         let zoom = event.deltaY / 100;
 
