@@ -40,7 +40,7 @@ const UI = {
         UI.fpsTracked.push(frameRate());
         if (UI.fpsTracked.length > 60) UI.fpsTracked.shift();
 
-        if(frameCount % 20 === 0) {
+        if (frameCount % 20 === 0) {
             let toShow = UI.fpsTracked.reduce((acc, curr) => acc + curr) / UI.fpsTracked.length;
             UI.statsFpsValue.innerHTML = toShow.toFixed(1);
             UI.statsPlayersCount.innerHTML = players.length;
@@ -182,3 +182,13 @@ const UI = {
 
 
 }
+
+window.onbeforeunload = function (e) {
+    document.querySelectorAll('[x-data]').forEach(el => {
+        let componentState = el.__x.getUnobservedData();
+
+        for (const [key, value] of Object.entries(componentState)) {
+            Cookies.set(key, value);    
+        }
+    });
+};
