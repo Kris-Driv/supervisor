@@ -5,13 +5,17 @@ var beforeRender = [];
 const defaultAddress = 'ws://localhost:27095';
 
 function setup() {
-    var cnv = createCanvas(displayWidth, displayHeight);
+    var cnv = createCanvas(windowWidth, windowHeight);
     cnv.parent(document.getElementById('canvas-container'));
     cnv.mouseWheel(UI.controlZoom);
 
     // Prepare
     renderer.setup();
     UI.setup();
+}
+
+function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
 }
 
 function draw() {
@@ -91,7 +95,6 @@ function mouseReleased() {
 function keyPressed() {
     if (keyCode === 32) {
         showGridOverlay = !showGridOverlay;
-        return false;
     }
 }
 

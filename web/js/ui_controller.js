@@ -9,23 +9,36 @@ const UI = {
 
     consoleContainer: null,
     messageList: null,
+    addressInput: null,
 
     setup: () => {
         UI.fpsCounter = document.getElementById('fps-counter');
 
         UI.consoleContainer = document.getElementById('console-container');
         UI.messageList = document.getElementById('console-messages');
+        UI.addressInput = document.getElementById('connection-input');
+
+        let address = UI.addressInput.value;
+
+        connectPocketCore(address, () => {
+            document.getElementById('connection-light').classList.remove('bg-red-500');
+            document.getElementById('connection-light').classList.add('bg-green-500');
+        }, () => {
+            document.getElementById('connection-light').classList.remove('bg-green-500');
+            document.getElementById('connection-light').classList.add('bg-red-500');
+        })
     },
 
     update: () => {
-        UI.fpsTracked.push(frameRate());
-        if (UI.fpsTracked.length > 60) UI.fpsTracked.shift();
+        // UI.fpsTracked.push(frameRate());
+        // if (UI.fpsTracked.length > 60) UI.fpsTracked.shift();
 
-        let toShow = UI.fpsTracked.reduce((acc, curr) => acc + curr) / UI.fpsTracked.length;
+        // let toShow = UI.fpsTracked.reduce((acc, curr) => acc + curr) / UI.fpsTracked.length;
 
-        UI.fpsCounter.innerHTML = "FPS: " + toShow.toFixed(1);
+        // UI.fpsCounter.innerHTML = "FPS: " + toShow.toFixed(1);
 
         // Player hover
+
         let hovering = [];
         players.forEach(player => {
             let coord = worldToCanvas(player.position.x, player.position.z, true);
@@ -44,7 +57,8 @@ const UI = {
     },
 
     log: (message) => {
-        let messageElement = document.createElement('li');
+        let messageElement = document.createElement('p');
+        messageElement.classList.add('message-list__message');
         messageElement.innerHTML = message;
 
         UI.messageList.appendChild(messageElement);

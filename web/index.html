@@ -8,8 +8,15 @@
 
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/assets/css/style.css">
 
-    <title>MyPath</title>
+    <title>Supervisor</title>
+
+    <!-- TailwindCSS -->
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+
+    <!-- AlpineJS for UI -->
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.2/dist/alpine.min.js" defer></script>
 
     <!-- Scripts -->
     <script src="js/p5.js" type="text/javascript"></script>
@@ -24,335 +31,105 @@
     <script src="js/renderer.js" type="text/javascript"></script>
 
     <script src="js/main.js" type="text/javascript"></script>
-
 </head>
 
-<body onload="setupInterface()">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            color: #fff;
-        }
+<body>
+    <div id="interface-overlay">
+        <header class="control-bar">
 
-        body,
-        html,
-        main {
-            width: 100%;
-            height: 100%;
-            background-color: #212121;
-
-            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            display: relative;
-        }
-
-        main {
-            margin-top: 60px;
-            padding: 20px;
-        }
-
-        #connection-light {
-            width: 8px;
-            height: 8px;
-            margin-left: 12px;
-            border: 1px solid #1a1a1a;
-            border-radius: 50%;
-            background-color: red;
-        }
-
-        .light-green {
-            background-color: green !important;
-        }
-
-        #control-bar {
-            height: 46px;
-            flex: 1;
-            top: 0;
-            left: 0;
-            background-color: #212121;
-            padding: 0 2rem 0 2rem;
-            border-bottom: 1px solid #3d3d3d;
-            z-index: 100;
-        }
-
-        #settings-bar {
-            height: 46px;
-            flex: 1;
-            top: 0;
-            left: 0;
-            background-color: #212121;
-            padding: 0 2rem 0 2rem;
-            border-bottom: 1px solid #3d3d3d;
-            z-index: 100;
-            display: none;
-        }
-
-        .button-wrapper {
-            display: flex;
-            height: 100%;
-            justify-content: start;
-            align-items: center;
-        }
-
-        .right-inputs {
-            display: flex;
-            height: 100%;
-            justify-content: start;
-            align-items: center;
-        }
-
-        .flex-container {
-            display: flex;
-            justify-content: space-between;
-            height: 100%;
-        }
-
-        .center {
-            justify-content: center !important;
-            align-items: center;
-        }
-
-        .flow-col {
-            flex-flow: column;
-        }
-
-        input,
-        button {
-            border: 1px solid #212121;
-            background-color: #3d3d3d;
-        }
-
-        button {
-            padding: 4px 12px;
-        }
-
-        button:hover {
-            cursor: pointer;
-        }
-
-        input[type=text] {
-            padding: 4px 12px;
-        }
-
-        canvas {
-            border: 1px solid #212121;
-        }
-
-        #canvas-info {
-            margin-bottom: 5px;
-        }
-
-        #console-container {
-            width: 100%;
-            border: 1px solid #3d3d3d;
-            height: 140px;
-            overflow-y: scroll;
-        }
-
-        #console-messages {
-            list-style: none;
-            height: 100%;
-            color: #fbfbfb;
-            font-size: 12px;
-            overflow-y: scroll;
-        }
-
-        #console-messages li {
-            padding: 5px 9px;
-            border-bottom: 1px solid #3d3d3d;
-        }
-
-        #console-control-bar {
-            width: 100%;
-            height: 45px;
-            display: flex;
-            justify-content: flex-end;
-            padding: 8px 0px;
-        }
-
-        #console-input {
-            width: 100%;
-        }
-
-        #sidebar {
-            z-index: 50;
-            position: absolute;
-            height: 100%;
-            right: 0px;
-            top: 0px;
-            width: 50px;
-            border: 1px solid red;
-        }
-        .block {
-            display: block !important;
-        }
-        #settings-options {
-            padding: 12px 5px;
-        }
-    </style>
-    <header>
-        <div id="control-bar">
-            <div class="flex-container">
-                <div class="button-wrapper">
-                    <button onclick="requestLevel()">Request Level</button>
-                    <button onclick="clearChunks()">Clear Chunks</button>
-                    <button onclick="toggleSettings()">Settings</button>
-                </div>
-                <div class="right-inputs">
-                    <input type="text" name="address" id="address">
-                    <button
-                        id="connect-button"
-                        onclick="connectPocketCore(document.getElementById('address').value, handleSocketOpen, handleSocketClose)">Connect</button>
-                    <span id="connection-light"></span>
+            <!-- Connection Controls -->
+            <div class="flex space-between items-center py-1 h-full" @mouseover="connectionMenuOpen = true"
+                @mouseleave="connectionMenuOpen = false" x-data="{ connectionMenuOpen: false }">
+                <div class="connectionMenu ml-4 flex absolute transition-all"
+                    :class="connectionMenuOpen ? 'left-0' : '-left-60'">
+                    <input type="text" name="address" value="ws://localhost:27095" id="connection-input"
+                        class="inline-block w-56">
+                    <div class="h-full py-2">
+                        <span id="connection-light" class="block m-auto bg-green"></span>
+                    </div>
                 </div>
             </div>
+
+        </header>
+
+        <div x-data="{ sidebarOpen: false, tabSelected: 'settings' }">
+            <aside class="sidebar transition-all bg-opacity-0"
+                :class="sidebarOpen ? 'w-96 z-30 bg-opacity-100' : 'w-1 z-10'" @mouseover="sidebarOpen = true"
+                @mouseleave="sidebarOpen = false">
+                <div class="w-full h-12 flex justify-between px-6 border-bottom border-gray-800 border-b-2">
+                    <!-- Players Tab -->
+                    <button 
+                        @click="tabSelected = 'players'"
+                        :class="tabSelected === 'players' ? 'border-bottom border-gray-200 border-b-2' : ''"
+                        class="h-full w-full flex justify-center items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path
+                                d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                        </svg>
+                    </button>
+                    <!-- Statistics Tab -->
+                    <button 
+                        @click="tabSelected = 'statistics'"
+                        :class="tabSelected === 'statistics' ? 'border-bottom border-gray-200 border-b-2' : ''"
+                        class="h-full w-full flex justify-center items-center outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </button>
+                    <!-- Settings Tab -->
+                    <button 
+                        @click="tabSelected = 'settings'"
+                        :class="tabSelected === 'settings' ? 'border-bottom border-gray-200 border-b-2' : ''"
+                        class="h-full w-full flex justify-center items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="px-4 py-8">
+                    <!-- Statistics -->
+                    <div x-show="tabSelected === 'statistics'">
+                        Statistics
+                        <ul id="stats-list">
+                            <li id="stats-fps">Avarage Framerate: <span id="stats-fps-value">60</span></li>
+                            <li id="stats-players-count">Players: <span id="stats-players-value">2</span></li>
+                            <li id="stats-entities-count">Entities: <span id="stats-entities-value">2</span></li>
+                            <li id="stats-chunks-count">Chunks Rendered: <span id="stats-chunks-value">2</span></li>
+                            <li id="stats-buffer-count">Buffers Created: <span id="stats-buffers-value">2</span></li>
+                        </ul>
+                    </div>
+                    <!-- Players -->
+                    <div x-show="tabSelected === 'players'">
+                        Players
+                    </div>
+                    <!-- Settings -->
+                    <div x-show="tabSelected === 'settings'">
+                        Settings
+                    </div>
+                </div>
+            </aside>
         </div>
-        <div id="settings-bar">
-            <div class="flex-container" id="settings-options">
-                <div class="form-group">
-                    <input type="checkbox" onclick="toggleGridOverlay(event)" name="render-grid" id="render-grid">
-                    <label for="render-grid">Grid Overlay</label>
-                </div>
 
-                <div class="form-group">
-                    <input type="checkbox" onclick="toggleCoordinates(event)" name="render-coordinates" id="render-coordinates">
-                    <label for="render-coordinates">Coordinates</label>
-                </div>
-
-                <div class="form-group">
-                    <input type="checkbox" onclick="toggleZoomPath(event)" name="render-zoom-path" id="render-zoom-path">
-                    <label for="render-zoom-path">Zoom Path</label>
-                </div>
-
-                <div class="form-group">
-                    <input type="checkbox" onclick="toggleBufferOutline(event)" name="render-buffer-outline" id="render-buffer-outline">
-                    <label for="render-buffer-outline">Buffer Outline</label>
-                </div>
-
-                <div class="form-group">
-                    <input type="checkbox" onclick="togglePlayers(event)" name="render-players" id="render-players">
-                    <label for="render-players">Players</label>
-                </div>
-
-                <div class="form-group">
-                    <input type="checkbox" onclick="toggleAxis(event)" name="render-axis" id="render-axis">
-                    <label for="render-axis">Axis</label>
-                </div>
-
-                <div class="form-group" onclick="resetOffsets(event)">
-                    <button>Reset Offsets</button>
+        <footer class="z-20">
+            <div class="console" id="console-container">
+                <div class="message-list" id="console-messages">
+                    <p class="message-list__message">Message #1</p>
                 </div>
             </div>
-        </div>
-    </header>
-    <main>
-        <div class="flex-container center flow-col">
-            <div class="column">
-                <div id="canvas-info">
-                    <span id="fps-counter"></span>
-                </div>
-                <div id="canvas-container">
-                    <!-- Here Goes Canvas -->
-                </div>
-                <div id="console-container">
-                    <ol id="console-messages">
-                        <!-- Here Goes Console Messages -->
-                    </ol>
-                </div>
-                <div id="console-control-bar">
-                    <input type="text" id="console-input" name="console-input">
-                    <button onclick="UI.clearConsole()">Clear</button>
-                </div>
+            <div class="console__input">
+                <input type="text" name="console-text-input" id="console-input">
+                <button name="console-send-button" id="console-send-button">Send</button>
             </div>
-        </div>
-    </main>
+        </footer>
+    </div>
+
+    <div id="canvas-container"></div>
 </body>
-
-<script>
-    let renderGrid = document.getElementById('render-grid');
-    renderGrid.checked = showGridOverlay;
-
-    let renderCoordinates = document.getElementById('render-coordinates');
-    renderCoordinates.checked = showCoordinates;
-
-    let renderZoomPath = document.getElementById('render-zoom-path');
-    renderZoomPath.checked = showCoordinates;
-
-    let renderPlayers = document.getElementById('render-players');
-    renderPlayers.checked = showPlayers;
-
-    let renderAxis = document.getElementById('render-axis');
-    renderAxis.checked = showAxis;
-
-    let renderBufferOutline = document.getElementById('render-buffer-outline');
-    renderBufferOutline.checked = showBufferOutlines;
-
-    function resetOffsets() {
-        renderer.offsetX = 0;
-        renderer.offsetY = 0;
-        renderer.tempOffsetX = 0;
-        renderer.tempOffsetY = 0;
-    }
-
-    function toggleZoomPath(event) {
-        showZoomPath = !event.target.checked;
-    }
-
-    function toggleGridOverlay(event) {
-        showGridOverlay = event.target.checked;
-
-        console.log(showGridOverlay);
-    }
-
-    function toggleBufferOutline(event) {
-        showBufferOutlines = event.target.checked;
-    }
-
-    function toggleCoordinates(event) {
-        showCoordinates = event.target.checked;
-    }
-
-    function togglePlayers(event) {
-        showPlayers = event.target.checked;
-    }
-
-    function toggleAxis(event) {
-        showAxis = event.target.checked;
-    }
-
-    var settingsOpen = false;
-    function toggleSettings() {
-        let div = document.getElementById('settings-bar');
-        settingsOpen = !settingsOpen;
-
-        if(settingsOpen) {
-            div.classList.add('block');
-        } else {
-            div.classList.remove('block');
-        }
-    }
-    function setupInterface() {
-
-        document.getElementById('address').value = defaultAddress;
-
-        if (socket) {
-            handleSocketOpen();
-        }
-
-        document.getElementById('connect-button').click();
-    }
-
-    function handleSocketClose() {
-        document.getElementById('connection-light').classList.remove('light-green');
-    }
-
-    function handleSocketOpen() {
-        document.getElementById('connection-light').classList.add('light-green');
-    }
-</script>
 
 </html>

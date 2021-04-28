@@ -1,0 +1,102 @@
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+    color: #fff;
+    outline: none !important;
+}
+
+html, body {
+    background-color: rgb(51, 51, 51);
+    overflow: hidden;
+}
+
+#interface-overlay {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-flow: column;
+    justify-content: space-between;
+}
+
+.console {
+    width: 100vw;
+    height: 240px;
+    padding: 12px;
+}
+
+.console__input {
+    display: flex;
+    height: 38px;
+    width: 100%;
+    justify-content: flex-start;
+}
+
+#console-input {
+    width: 100%;
+    height: 38px;
+    background-color: rgba(0, 0, 0, 0.315);
+    color: #fff;
+    padding: 4px 12px;
+    border: none;
+    outline: none;
+}
+#console-text-input:hover {
+    background-color: rgba(0, 0, 0, 0.445);
+}
+
+#console-send-button {
+    padding: 4px 12px;
+    background-color: #1d1d1d;
+    border: none;
+}
+
+.message-list {
+    display: flex;
+    flex-flow: column nowrap;
+    list-style: none;
+    overflow-y: auto;
+    height: 100%;
+}
+.message-list > :first-child {
+    margin-top: auto !important;
+    /* use !important to prevent breakage from child margin settings */
+}
+
+.message-list__message {
+    padding: 5px 12px;
+    border-radius: 3px;
+    background-color: rgba(0, 0, 0, 0.315);
+    margin: 5px 0px;
+}
+
+.sidebar {
+    position: absolute;
+    right: 0;
+    top: 0;
+    /* width: 420px; */
+    height: 100vh;
+    background-color: #121212;
+}
+
+.control-bar {
+    height: 40px;
+    width: 100%;
+    position: absolute;
+    top: 0;
+}
+
+.control-bar input[type=text] {
+    border: none;
+    background-color: rgba(0, 0, 0, 0.274);
+    padding: 4px 12px;
+}
+
+#connection-light {
+    width: 12px;
+    height: 12px;
+    margin-left: 12px;
+    border: 1px solid #1a1a1a;
+    border-radius: 50%;
+}
