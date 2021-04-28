@@ -7,7 +7,14 @@ const defaultAddress = 'ws://localhost:27095';
 function setup() {
     var cnv = createCanvas(windowWidth, windowHeight);
     cnv.parent(document.getElementById('canvas-container'));
+
     cnv.mouseWheel(UI.controlZoom);
+    cnv.mousePressed(UI.mousePressed);
+
+    mousePressed = UI.mousePressed;
+    keyPressed = UI.keyPressed;
+    mouseDragged = UI.mouseDragged;
+    mouseReleased = UI.mouseReleased;
 
     // Prepare
     renderer.setup();
@@ -64,38 +71,6 @@ function getWorldY(x, z) {
         return Object.keys(chunk.layer[Math.floor(rx)][Math.floor(rz)] ?? [])[0] ?? 255;
     }
     return 255;
-}
-
-function mousePressed() {
-    anchor = new p5.Vector(mouseX, mouseY);
-}
-
-function mouseDragged() {
-    if ((mouseX <= width && mouseX >= 0 && mouseY <= height && mouseY >= 0) === false) {
-        mouseReleased();
-        return;
-    }
-
-    let currentPos = new p5.Vector(mouseX, mouseY);
-    let d = currentPos.sub(anchor);
-
-    renderer.tempOffsetX = d.x;//(d.x * renderer.scl);
-    renderer.tempOffsetY = d.y;//(d.y * renderer.scl);
-}
-
-function mouseReleased() {
-    anchor = null;
-
-    renderer.offsetX += renderer.tempOffsetX;
-    renderer.offsetY += renderer.tempOffsetY;
-    renderer.tempOffsetX = 0;
-    renderer.tempOffsetY = 0;
-}
-
-function keyPressed() {
-    if (keyCode === 32) {
-        showGridOverlay = !showGridOverlay;
-    }
 }
 
 function requestLevel() {

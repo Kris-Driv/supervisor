@@ -276,11 +276,17 @@ const renderer = {
         noStroke();
         fill('#FFF');
         textSize(12);
+        textAlign(LEFT);
+        let padding = 2;
 
         // World Coordinates
         let coord = canvasToWorld(mouseX, mouseY);
         let txt = `[${coord[0]}, ${coord[2]}, ${coord[1]}]`;
+        fill('#000');
+        rect(mouseX + 18, mouseY - 30, textWidth(txt) + 4, 24);
+        fill('#fff');
         text(txt, mouseX + 20, mouseY - 20);
+        
 
         // Chunk Coordinates
         let cx = coord[0] >> 4;
@@ -292,6 +298,9 @@ const renderer = {
         let bid = getBlockIdAt(coord[0], coord[1]);
         if (bid) {
             let txt = `[Block ID: ${bid ?? null}]`;
+            fill('#000');
+            rect(mouseX + 18, mouseY + 8, textWidth(txt) + 4, 12);
+            fill('#fff');
             text(txt, mouseX + 20, mouseY + 18);
         }
     },

@@ -137,8 +137,6 @@ const UI = {
     },
 
     controlZoom: (event) => {
-        console.log(event);
-
         let zoom = event.deltaY / 100;
 
         let before = canvasToWorld(width / 2, height / 2);
@@ -179,17 +177,54 @@ const UI = {
                 line(last[0], last[1], curr[0], curr[1]);
             }
         });
-    }
+    },
 
+
+    mouseDragged: () => {
+        if(!anchor) return;
+
+        if ((mouseX <= width && mouseX >= 0 && mouseY <= height && mouseY >= 0) === false) {
+            UI.mouseReleased();
+            return;
+        }
+
+        let currentPos = new p5.Vector(mouseX, mouseY);
+        let d = currentPos.sub(anchor);
+
+        renderer.tempOffsetX = d.x;//(d.x * renderer.scl);
+        renderer.tempOffsetY = d.y;//(d.y * renderer.scl);
+    },
+
+    mousePressed: (event) => {
+        if(event.target.id !== 'interface-overlay') return;
+
+        anchor = new p5.Vector(mouseX, mouseY);
+    },
+
+    mouseReleased: () => {
+        anchor = null;
+
+        renderer.offsetX += renderer.tempOffsetX;
+        renderer.offsetY += renderer.tempOffsetY;
+        renderer.tempOffsetX = 0;
+        renderer.tempOffsetY = 0;
+    },
+
+    keyPressed: () => {
+        if (keyCode === 32) {
+            showGridOverlay = !showGridOverlay;
+        }
+    },
 
 }
 
 window.onbeforeunload = function (e) {
+    // Cache the AlpineJS component states for smooth reloads
     document.querySelectorAll('[x-data]').forEach(el => {
         let componentState = el.__x.getUnobservedData();
 
         for (const [key, value] of Object.entries(componentState)) {
-            Cookies.set(key, value);    
+            Cookies.set(key, value);
         }
     });
 };
