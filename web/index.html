@@ -9,6 +9,7 @@
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/assets/css/style.css">
+    <!-- <link rel="stylesheet" href="/assets/css/slider.css"> -->
 
     <title>Supervisor</title>
 
@@ -35,7 +36,7 @@
 
 <body>
     <div id="interface-overlay">
-        <header class="control-bar">
+        <header class="control-bar flex justify-between">
 
             <!-- Connection Controls -->
             <div class="flex space-between items-center py-1 h-full" @mouseover="connectionMenuOpen = true"
@@ -50,12 +51,25 @@
                 </div>
             </div>
 
+            <div class="px-4 flex justify-center items-center relative" id="viewers-info" @mouseover="showViewers = true" @mouseleave="showViewers = false" x-data="{ showViewers: false }">
+                <div x-show="showViewers" class="inline-block mr-2">
+                    <span>Viewers: <span id="stats-viewers-count">1</span></span>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                </svg>
+            </div>
+
         </header>
 
-        <div x-data="{ sidebarOpen: false, tabSelected: 'settings' }">
-            <aside class="sidebar transition-all bg-opacity-0"
-                :class="sidebarOpen ? 'w-96 z-30 bg-opacity-100' : 'w-1 z-10'" @mouseover="sidebarOpen = true"
-                @mouseleave="sidebarOpen = false">
+        <div x-data="{ sidebarOpen: false, tabSelected: 'settings', stayOpen: false }">
+            <aside class="sidebar transition-all bg-opacity-0 overflow-hidden"
+                :class="sidebarOpen ? 'z-30 bg-opacity-100' : 'w-1 z-10'" 
+                @mouseover="sidebarOpen = true"
+                @click.away="stayOpen = false; sidebarOpen = false;"
+                @click="stayOpen = true;"
+                @mouseleave="sidebarOpen = !stayOpen ? false : true">
                 <div class="w-full h-12 flex justify-between px-6 border-bottom border-gray-800 border-b-2">
                     <!-- Players Tab -->
                     <button 
@@ -75,9 +89,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </button>
                     <!-- Settings Tab -->
@@ -88,43 +100,68 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                     </button>
                 </div>
-                <div class="px-4 py-8">
+                <div class="px-4 pt-4 pb-8 sidebar-content">
                     <!-- Statistics -->
                     <div x-show="tabSelected === 'statistics'">
-                        Statistics
-                        <ul id="stats-list">
-                            <li id="stats-fps">Avarage Framerate: <span id="stats-fps-value">60</span></li>
-                            <li id="stats-players-count">Players: <span id="stats-players-value">2</span></li>
-                            <li id="stats-entities-count">Entities: <span id="stats-entities-value">2</span></li>
-                            <li id="stats-chunks-count">Chunks Rendered: <span id="stats-chunks-value">2</span></li>
-                            <li id="stats-buffer-count">Buffers Created: <span id="stats-buffers-value">2</span></li>
-                        </ul>
+                        <div class="text-center mb-4 text-lg">
+                            <h1>Statistics</h1>
+                        </div>
+                        <table class="w-full" id="stats-table">
+                            <tr class="stats-row">
+                                <td class="stats-label" id="stats-fps">Avarage Framerate:</td>
+                                <td class="stats-value" id="stats-fps-value">60</td>
+                            </tr>
+                            <tr class="stats-row">
+                                <td class="stats-label" id="stats-players-count">Players:</td>
+                                <td class="stats-value" id="stats-players-value">2</td>
+                            </tr>
+                            <tr class="stats-row">
+                                <td class="stats-label" id="stats-entities-count">Entities:</td>
+                                <td class="stats-value" id="stats-entities-value">2</td>
+                            </tr>
+                            <tr class="stats-row">
+                                <td class="stats-label" id="stats-chunks-count">Chunks Rendered:</td>
+                                <td class="stats-value" id="stats-chunks-value">2</td>
+                            </tr>
+                            <tr class="stats-row">
+                                <td class="stats-label" id="stats-buffer-count">Buffers Created:</td>
+                                <td class="stats-value" id="stats-buffers-value">2</td>
+                            </tr>
+                        </table>
                     </div>
                     <!-- Players -->
                     <div x-show="tabSelected === 'players'">
-                        Players
+                        <div class="text-center mb-4 text-lg">
+                            <h1>Players</h1>
+                        </div>
                     </div>
                     <!-- Settings -->
                     <div x-show="tabSelected === 'settings'">
-                        Settings
+                        <div class="text-center mb-4 text-lg">
+                            <h1>Settings</h1>
+                        </div>
                     </div>
                 </div>
             </aside>
         </div>
 
         <footer class="z-20">
-            <div class="console" id="console-container">
-                <div class="message-list" id="console-messages">
-                    <p class="message-list__message">Message #1</p>
+            <div class="console-wrapper" x-data="{ showMessages: false }">
+                <div class="console" id="console-container">
+                    <div :class="showMessages ? 'force-messages' : ''" class="message-list" id="console-messages">
+                        <!-- <p class="message-list__message">Message #1</p> -->
+                    </div>
                 </div>
-            </div>
-            <div class="console__input">
-                <input type="text" name="console-text-input" id="console-input">
-                <button name="console-send-button" id="console-send-button">Send</button>
+                <div class="console__input">
+                    <input type="text" @focus="showMessages = true" @blur="showMessages = false" name="console-text-input" id="console-input">
+                    <button name="console-send-button" id="console-send-button">Send</button>
+                </div>
             </div>
         </footer>
     </div>

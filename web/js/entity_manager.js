@@ -1,4 +1,5 @@
 var players = [];
+var entities = [];
 
 function addPlayer(eid, player) {
     if(!eid) {

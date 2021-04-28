@@ -80,6 +80,10 @@ html, body {
     background-color: #121212;
 }
 
+.sidebar-content {
+    min-width: 460px;
+}
+
 .control-bar {
     height: 40px;
     width: 100%;
@@ -97,6 +101,44 @@ html, body {
     width: 12px;
     height: 12px;
     margin-left: 12px;
-    border: 1px solid #1a1a1a;
     border-radius: 50%;
+}
+
+.connected-light {
+    box-shadow: 0px 0px 8px #25b900;
+    background-color: #25b900
+}
+
+.disconnected-light {
+    box-shadow: 0px 0px 8px #b90000;
+    background-color: #b90000;
+}
+
+#stats-table {
+    table-layout: fixed;
+}
+.stats-value {
+    text-align: right;
+}
+.stats-row {
+    padding: 8px 2px;
+}
+.stats-label {
+    font-weight: bold;
+}
+td {
+    width: 100%;
+    overflow: hidden;
+}
+.sidebar {
+    width: 420px;
+}
+
+#viewers-info {
+    border-radius: 6px;
+    background-color:rgba(0, 0, 0, 0.315);
+}
+
+.force-messages > p {
+    opacity: 100% !important;
 }

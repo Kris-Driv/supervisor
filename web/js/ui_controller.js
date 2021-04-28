@@ -18,27 +18,39 @@ const UI = {
         UI.messageList = document.getElementById('console-messages');
         UI.addressInput = document.getElementById('connection-input');
 
+        UI.statsFpsValue = document.getElementById('stats-fps-value');
+        UI.statsPlayersCount = document.getElementById('stats-players-value');
+        UI.statsEntitiesCount = document.getElementById('stats-entities-value');
+        UI.statsChunksCount = document.getElementById('stats-chunks-value');
+        UI.statsBuffersCount = document.getElementById('stats-buffers-value');
+        UI.statsViewersCount = document.getElementById('stats-viewers-count');
+
         let address = UI.addressInput.value;
 
         connectPocketCore(address, () => {
-            document.getElementById('connection-light').classList.remove('bg-red-500');
-            document.getElementById('connection-light').classList.add('bg-green-500');
+            document.getElementById('connection-light').classList.remove('disconnected-light');
+            document.getElementById('connection-light').classList.add('connected-light');
         }, () => {
-            document.getElementById('connection-light').classList.remove('bg-green-500');
-            document.getElementById('connection-light').classList.add('bg-red-500');
+            document.getElementById('connection-light').classList.remove('connected-light');
+            document.getElementById('connection-light').classList.add('disconnected-light');
         })
     },
 
     update: () => {
-        // UI.fpsTracked.push(frameRate());
-        // if (UI.fpsTracked.length > 60) UI.fpsTracked.shift();
+        UI.fpsTracked.push(frameRate());
+        if (UI.fpsTracked.length > 60) UI.fpsTracked.shift();
 
-        // let toShow = UI.fpsTracked.reduce((acc, curr) => acc + curr) / UI.fpsTracked.length;
-
-        // UI.fpsCounter.innerHTML = "FPS: " + toShow.toFixed(1);
+        if(frameCount % 20 === 0) {
+            let toShow = UI.fpsTracked.reduce((acc, curr) => acc + curr) / UI.fpsTracked.length;
+            UI.statsFpsValue.innerHTML = toShow.toFixed(1);
+            UI.statsPlayersCount.innerHTML = players.length;
+            UI.statsEntitiesCount.innerHTML = entities.length;
+            UI.statsChunksCount.innerHTML = chunks.length;
+            UI.statsBuffersCount.innerHTML = renderer.Buffer.loaded.length;
+            UI.statsViewersCount.innerHTML = 1; // TODO
+        }
 
         // Player hover
-
         let hovering = [];
         players.forEach(player => {
             let coord = worldToCanvas(player.position.x, player.position.z, true);
@@ -59,7 +71,12 @@ const UI = {
     log: (message) => {
         let messageElement = document.createElement('p');
         messageElement.classList.add('message-list__message');
+        messageElement.classList.add('transition-all');
         messageElement.innerHTML = message;
+
+        setTimeout(() => {
+            messageElement.classList.add('opacity-0');
+        }, 1000 * 5); // 5 seconds?
 
         UI.messageList.appendChild(messageElement);
         UI.messageList.scrollTop = UI.messageList.scrollHeight;
