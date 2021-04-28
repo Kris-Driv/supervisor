@@ -75,7 +75,7 @@
         <div
             x-data="{ sidebarOpen: (Cookies.get('sidebarOpen') || false) == 'true', tabSelected: Cookies.get('tabSelected') || 'players', stayOpen: (Cookies.get('stayOpen') || false) == 'true' }">
             <aside class="sidebar transition-all bg-opacity-0 overflow-hidden"
-                :class="sidebarOpen ? 'z-30 bg-opacity-100' : 'w-1 z-10'" @mouseover="sidebarOpen = true"
+                :class="sidebarOpen ? 'z-30 bg-opacity-100 w-full md:w-96' : 'w-1 z-10'" @mouseover="sidebarOpen = true"
                 @click.away="stayOpen = false; sidebarOpen = false;" @click="stayOpen = true;"
                 @mouseleave="sidebarOpen = !stayOpen ? false : true">
                 <div class="w-full h-12 flex justify-between px-6 border-bottom border-gray-800 border-b-2">
@@ -109,6 +109,13 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
+                    </button>
+                    <!-- Close Button for Mobile -->
+                    <button @click="sidebarOpen = false"
+                        class="h-full w-full flex justify-center items-center flex-1 -mr-6 -mt-3 rounded-full p-2 bg-gray-800 sm:hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
                     </button>
                 </div>
                 <div class="px-4 pt-4 pb-8 sidebar-content">

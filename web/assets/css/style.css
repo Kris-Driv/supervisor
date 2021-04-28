@@ -81,7 +81,8 @@ html, body {
 }
 
 .sidebar-content {
-    min-width: 420px;
+    min-width: 380px;
+    overflow-y: scroll;
 }
 
 .control-bar {
