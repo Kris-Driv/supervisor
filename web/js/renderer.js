@@ -23,7 +23,7 @@ RenderSettings.CHUNKS_IN_BUFFER = 16; // 2x2 = 4
 // Total Buffer size in pixels
 RenderSettings.BUFFER_SIZE = RenderSettings.CHUNKS_IN_BUFFER * RenderSettings.CHUNK_SIZE;
 // How many chunks can be rendererd per frame
-RenderSettings.CHUNK_RENDER_RATE = 30; // 2 per frame
+RenderSettings.CHUNK_RENDER_RATE = 1;
 
 const renderer = {
 
