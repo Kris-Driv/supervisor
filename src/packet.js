@@ -21,6 +21,20 @@ const Packet = {
         }
     },
 
+    PlayerMessage: {
+        listeners: [],
+        name: "player.message",
+        broadcast: true,
+
+        decode,
+        encode: (eid, message) => {
+            return Packet._encode(Packet.PlayerMessage.name, { eid, message });
+        },
+        handle: (pk, ws) => {
+            return true;
+        }
+    },
+
     PlayerJoin: {
         listeners: [],
         name: "player.join",
@@ -28,7 +42,7 @@ const Packet = {
 
         decode,
         encode: (eid, name, position, face = null) => {
-            return Packet._encode('player.join', {
+            return Packet._encode(Packet.PlayerJoin.name, {
                 eid,
                 name,
                 position,
@@ -48,7 +62,7 @@ const Packet = {
 
         decode,
         encode: (eid, name) => {
-            return Packet._encode('player.leave', {
+            return Packet._encode(Packet.PlayerLeave.name, {
                 eid,
                 name,
             });
@@ -66,7 +80,7 @@ const Packet = {
 
         decode,
         encode: (eid, pixelArray) => {
-            return Packet._encode('player.face', {
+            return Packet._encode(Packet.PlayerFace.name, {
                 eid,
                 pixelArray,
                 size: 64
@@ -83,7 +97,7 @@ const Packet = {
         decode,
 
         encode: (name, chunks, entities) => {
-            return Packet._encode('level', {
+            return Packet._encode(Packet.Level.name, {
                 name,
                 chunks: Buffer.from(JSON.stringify(Object.values(chunks))).toString('base64'),
                 entities
@@ -102,7 +116,7 @@ const Packet = {
         decode,
 
         encode: (body) => {
-            return Packet._encode('chunk', body);
+            return Packet._encode(Packet.Chunk.name, body);
         },
         handle: (pk, ws) => {
             return true;
@@ -118,12 +132,10 @@ const Packet = {
             return pk.body.time;
         },
         encode: (time) => {
-            return Packet._encode('ping', { time });
+            return Packet._encode(Packet.Ping.name, { time });
         },
         handle: (pk, ws) => {
             ws.send(JSON.stringify(pk));
-            ws.send('Hello! response to ping packet');
-
             return true;
         }
     },
@@ -135,7 +147,7 @@ const Packet = {
             return true;
         },
         encode: () => {
-            return Packet._encode('subscribe')
+            return Packet._encode(Packet.Subscribe.name);
         },
         handle: (pk, ws) => {
             return true;
@@ -151,7 +163,7 @@ const Packet = {
             return pk.body.message;
         },
         encode: (message) => {
-            return Packet._encode('message', { message });
+            return Packet._encode(Packet.Message.name, { message });
         },
         handle: (pk, ws) => {
             logger.info('Message: ' + Packet.Message.decode(pk));

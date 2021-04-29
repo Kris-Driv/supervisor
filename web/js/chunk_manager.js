@@ -9,17 +9,10 @@ function recieveChunk(chunk) {
         validateChunk(chunk);
     } catch(error) {
         return UI.log(`Invalid ${describeChunk(chunk)}:` + error);
-        // throw error;
+        throw error;
     }
 
-    // Edit mapBufferImage buffer with this new chunk
-    renderer.renderChunk(chunk).then(() => {
-        // Chunk rendered, save
-        chunks[chunk.x + ':' + chunk.z] = chunk;
-    }).catch(error => {
-        UI.log(`Error rendering ${describeChunk(chunk)}: ` + error);
-        throw error;
-    });
+    renderer.renderChunk(chunk);
 }
 
 function describeChunk(chunk) {

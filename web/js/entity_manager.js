@@ -25,6 +25,7 @@ function handleFaceUpdate(eid, pixelArray) {
 
 function removePlayer(eid, player) {
     if(players[eid]) {
+        // TODO, resets keys unnecessary
         players.splice(eid, 1);
     }
 }

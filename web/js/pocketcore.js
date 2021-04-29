@@ -34,6 +34,7 @@ function connectPocketCore(address, onopen, onclose) {
 
 function handlePocketcorePacket(event) {
     let response = JSON.parse(event.data);
+    let player;
     // console.log(response);
 
     switch (response.type) {
@@ -53,6 +54,15 @@ function handlePocketcorePacket(event) {
             // console.log('Recieved chunks in bulk, size: ' + floor(response.body.chunks.length) + ' bytes');
             break;
 
+        case 'player.message':
+            console.log(response);
+
+            player = getPlayer(response.body.eid);
+            if(player) {
+                UI.log(`${player.name}: ${response.body.message}`);
+            }
+            break;
+            
         case 'player.join':
             UI.log('Player ' + response.body.name + ' has joined the game');
 
@@ -60,8 +70,12 @@ function handlePocketcorePacket(event) {
                 UI.log('Player rejected for not having position');
                 return;
             }
+            if(!response.body.eid) {
+                UI.log('Player rejected for not having EID');
+                return;
+            }
 
-            addPlayer(response.body.eid ?? 0, {
+            addPlayer(response.body.eid, {
                 name: response.body.name,
                 eid: response.body.eid,
                 position: response.body.position,
@@ -77,7 +91,7 @@ function handlePocketcorePacket(event) {
             break;
 
         case 'player.face':
-            let player = getPlayer(response.body.eid);
+            player = getPlayer(response.body.eid);
             if(!player) {
                 UI.log('Got face for invalid player');
                 return;

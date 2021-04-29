@@ -31,12 +31,15 @@ const UI = {
         UI.renderPlayerMarkers = document.getElementById("render-player-markers");
         UI.renderChunkGrid = document.getElementById("render-chunk-grid");
         UI.renderMouseTooltip = document.getElementById("render-mouse-tooltip");
+        UI.renderCrosshair = document.getElementById("render-crosshair");
+
 
         UI.renderBufferOutlines.checked = showBufferOutlines;
         UI.renderAxisLines.checked = showAxis;
         UI.renderPlayerMarkers.checked = showPlayers;
         UI.renderChunkGrid.checked = showGridOverlay;
         UI.renderMouseTooltip.checked = showCoordinates;
+        UI.renderCrosshair.checked = showCrosshair;
 
         UI.renderBufferOutlines.addEventListener("click", (event) => {
             showBufferOutlines = event.target.checked;
@@ -52,6 +55,9 @@ const UI = {
         });
         UI.renderMouseTooltip.addEventListener("click", (event) => {
             showCoordinates = event.target.checked;
+        });
+        UI.renderCrosshair.addEventListener("click", (event) => {
+            showCrosshair = event.target.checked;
         });
 
         UI.xOffsetInput = document.getElementById("x-offset-input");
