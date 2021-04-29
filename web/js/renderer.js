@@ -34,6 +34,7 @@ const renderer = {
         SIZE: RenderSettings.BUFFER_SIZE,
 
         loaded: [],
+        cachedVisibility: [],
 
         hash(bufferX, bufferY) {
             return bufferX + ':' + bufferY;
@@ -62,7 +63,48 @@ const renderer = {
             renderer.Buffer.loaded[renderer.Buffer.hash(i, j)] = buff;
 
             return buff;
+        },
+
+        visible(clearCache = false) {
+            if(renderer.Buffer.cachedVisibility && !clearCache) {
+                return renderer.Buffer.cachedVisibility
+            }
+
+            let visible = Object.values(renderer.Buffer.loaded).filter((buffer) => {
+                let lx = buffer.i * RenderSettings.BUFFER_SIZE * renderer.scl + renderer.offsetX + renderer.tempOffsetX;
+                let ly = buffer.j * RenderSettings.BUFFER_SIZE * renderer.scl + renderer.offsetY + renderer.tempOffsetY;
+                let rx = lx + buffer.width * renderer.scl;
+                let ry = ly + buffer.height * renderer.scl;
+
+                // fill('red');
+                // noStroke();
+
+                // push();
+                // translate(width / 2 - 15, height / 2 - 15);
+                // // TOP
+                // stroke(ry < 0 ? 'green' : 'red'); 
+                // line(0, 0, 30, 0);
+                // // RIGHT
+                // stroke(0 > rx ? 'green' : 'red');
+                // line(30, 0, 30, 30);
+                // // BOTTOM
+                // stroke(ly > height ? 'green' : 'red');
+                // line(30, 30, 0, 30);
+                // // LEFT
+                // stroke(lx > width ? 'green' : 'red');
+                // line(0, 30, 0, 0);
+                // pop();
+
+                // return (ry < 0 && 0 > rx && ly > height && lx > width);
+
+                return (ry > 0 && 0 < rx && ly < height && lx < width);
+            });
+
+            renderer.Buffer.cachedVisibility = visible;
+
+            return visible;
         }
+
     },
 
     scl: scl,
@@ -97,8 +139,7 @@ const renderer = {
 
     render: () => {
 
-        Object.values(renderer.Buffer.loaded)
-            .forEach((buffer) => {
+        renderer.Buffer.visible(true).forEach((buffer) => {
                 push();
 
                 translate(

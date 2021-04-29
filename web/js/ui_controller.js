@@ -21,8 +21,9 @@ const UI = {
         UI.statsPlayersCount = document.getElementById('stats-players-value');
         UI.statsEntitiesCount = document.getElementById('stats-entities-value');
         UI.statsChunksCount = document.getElementById('stats-chunks-value');
-        UI.statsBuffersCount = document.getElementById('stats-buffers-value');
         UI.statsViewersCount = document.getElementById('stats-viewers-count');
+        UI.statsBuffersCount = document.getElementById('stats-buffers-value');
+        UI.statsBuffersRendered = document.getElementById('stats-buffers-rendered-value');
 
         // Settings Elements
         UI.renderBufferOutlines = document.getElementById("render-buffer-outlines");
@@ -93,7 +94,8 @@ const UI = {
             UI.statsPlayersCount.innerHTML = players.length;
             UI.statsEntitiesCount.innerHTML = entities.length;
             UI.statsChunksCount.innerHTML = chunks.length;
-            UI.statsBuffersCount.innerHTML = renderer.Buffer.loaded.length;
+            UI.statsBuffersCount.innerHTML = Object.values(renderer.Buffer.loaded).length;
+            UI.statsBuffersRendered.innerHTML = renderer.Buffer.cachedVisibility.length;
             UI.statsViewersCount.innerHTML = 1; // TODO
 
             if(renderer.offsetX !== UI.prevOffsetX) {
@@ -126,6 +128,8 @@ const UI = {
                 UI.renderPlayerCard(mouseX, mouseY, hovering);
             });
         }
+
+        UI.handleMovement();
     },
 
     log: (message) => {
@@ -281,6 +285,27 @@ const UI = {
             showGridOverlay = !showGridOverlay;
         }
     },
+
+    moveSpeed: 10,
+
+    handleMovement: () => {
+        if(keyIsDown(BACKSPACE)) {
+            renderer.offsetX = width / 2;
+            renderer.offsetY = height / 2;
+        }
+        if(keyIsDown(RIGHT_ARROW)) {
+            renderer.offsetX -= 10 * renderer.scl;
+        }
+        if(keyIsDown(UP_ARROW)) {
+            renderer.offsetY += 10 * renderer.scl;
+        }
+        if(keyIsDown(DOWN_ARROW)) {
+            renderer.offsetY -= 10 * renderer.scl;
+        }
+        if(keyIsDown(LEFT_ARROW)) {
+            renderer.offsetX += 10 * renderer.scl;
+        }
+    }
 
 }
 
