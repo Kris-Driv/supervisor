@@ -2,7 +2,6 @@ let zoomPath = [];
 
 const UI = {
 
-    fpsCounter: null,
     fpsTracked: [],
 
     debugBarContainer: null,
@@ -12,18 +11,61 @@ const UI = {
     addressInput: null,
 
     setup: () => {
-        UI.fpsCounter = document.getElementById('fps-counter');
 
         UI.consoleContainer = document.getElementById('console-container');
         UI.messageList = document.getElementById('console-messages');
         UI.addressInput = document.getElementById('connection-input');
 
+        // Statistic Elements
         UI.statsFpsValue = document.getElementById('stats-fps-value');
         UI.statsPlayersCount = document.getElementById('stats-players-value');
         UI.statsEntitiesCount = document.getElementById('stats-entities-value');
         UI.statsChunksCount = document.getElementById('stats-chunks-value');
         UI.statsBuffersCount = document.getElementById('stats-buffers-value');
         UI.statsViewersCount = document.getElementById('stats-viewers-count');
+
+        // Settings Elements
+        UI.renderBufferOutlines = document.getElementById("render-buffer-outlines");
+        UI.renderAxisLines = document.getElementById("render-axis-lines");
+        UI.renderPlayerMarkers = document.getElementById("render-player-markers");
+        UI.renderChunkGrid = document.getElementById("render-chunk-grid");
+        UI.renderMouseTooltip = document.getElementById("render-mouse-tooltip");
+
+        UI.renderBufferOutlines.checked = showBufferOutlines;
+        UI.renderAxisLines.checked = showAxis;
+        UI.renderPlayerMarkers.checked = showPlayers;
+        UI.renderChunkGrid.checked = showGridOverlay;
+        UI.renderMouseTooltip.checked = showCoordinates;
+
+        UI.renderBufferOutlines.addEventListener("click", (event) => {
+            showBufferOutlines = event.target.checked;
+        });
+        UI.renderAxisLines.addEventListener("click", (event) => {
+            showAxis = event.target.checked;
+        })
+        UI.renderPlayerMarkers.addEventListener("click", (event) => {
+            showPlayers = event.target.checked;
+        });
+        UI.renderChunkGrid.addEventListener("click", (event) => {
+            showGridOverlay = event.target.checked;
+        });
+        UI.renderMouseTooltip.addEventListener("click", (event) => {
+            showCoordinates = event.target.checked;
+        });
+
+        UI.xOffsetInput = document.getElementById("x-offset-input");
+        UI.zOffsetInput = document.getElementById("z-offset-input");
+        UI.scaleInput = document.getElementById("scale-input");
+
+        UI.xOffsetInput.addEventListener("change", (event) => {
+            renderer.offsetX = parseFloat(event.target.value);
+        });
+        UI.zOffsetInput.addEventListener("change", (event) => {
+            renderer.offsetY = parseFloat(event.target.value);
+        });
+        UI.scaleInput.addEventListener("change", (event) => {
+            renderer.scl = UI.capScale(parseFloat(event.target.value));
+        });
 
         let address = UI.addressInput.value;
 
@@ -36,9 +78,14 @@ const UI = {
         })
     },
 
+    prevOffsetX: null,
+    prevOffsetZ: null,
+    prevScale: null,
+
     update: () => {
         UI.fpsTracked.push(frameRate());
         if (UI.fpsTracked.length > 60) UI.fpsTracked.shift();
+
 
         if (frameCount % 20 === 0) {
             let toShow = UI.fpsTracked.reduce((acc, curr) => acc + curr) / UI.fpsTracked.length;
@@ -48,6 +95,19 @@ const UI = {
             UI.statsChunksCount.innerHTML = chunks.length;
             UI.statsBuffersCount.innerHTML = renderer.Buffer.loaded.length;
             UI.statsViewersCount.innerHTML = 1; // TODO
+
+            if(renderer.offsetX !== UI.prevOffsetX) {
+                UI.xOffsetInput.value = renderer.offsetX;
+                UI.prevOffsetX = renderer.offsetX;
+            }
+            if(renderer.offsetY !== UI.prevOffsetZ) {
+                UI.zOffsetInput.value = renderer.offsetY;
+                UI.prevOffsetZ = renderer.offsetY;
+            }
+            if(renderer.scl !== UI.prevScale) {
+                UI.scaleInput.value = renderer.scl;
+                UI.prevScale = renderer.scl;
+            }
         }
 
         // Player hover
@@ -136,13 +196,17 @@ const UI = {
         });
     },
 
+    capScale: (value) => {
+        return max(0.5, min(value, 5))
+    },
+
     controlZoom: (event) => {
         let zoom = event.deltaY / 100;
 
         let before = canvasToWorld(width / 2, height / 2);
 
         let prevScl = renderer.scl;
-        let newScl = max(0.5, min(prevScl + zoom, 5));
+        let newScl = UI.capScale(prevScl + zoom);
 
         renderer.scl = newScl;
         let after = canvasToWorld(width / 2, height / 2);
@@ -195,8 +259,10 @@ const UI = {
         renderer.tempOffsetY = d.y;//(d.y * renderer.scl);
     },
 
+    clickThroughElements: ['interface-overlay', 'console-messages'],
+
     mousePressed: (event) => {
-        if(event.target.id !== 'interface-overlay') return;
+        if(UI.clickThroughElements.indexOf(event.target.id) < 0) return;
 
         anchor = new p5.Vector(mouseX, mouseY);
     },

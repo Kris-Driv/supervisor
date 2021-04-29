@@ -46,6 +46,8 @@ class Level {
     }
 
     removeEntity(eid) {
+        if(!this.entities[eid]) return;
+
         this.entities.splice(eid, 1);
     }
 
@@ -54,6 +56,8 @@ class Level {
     }
 
     updateEntityPosition(eid, position) {
+        if(!this.entities[eid]) return;
+        
         this.entities[eid].position = position;
     } 
 

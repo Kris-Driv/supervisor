@@ -66,7 +66,6 @@ const renderer = {
     },
 
     scl: scl,
-    topScl: 0.5,
 
     offsetX: 0,
     offsetY: 0,

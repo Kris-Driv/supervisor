@@ -50,6 +50,7 @@
                 <div class="connectionMenu ml-4 flex absolute transition-all"
                     :class="connectionMenuOpen ? 'left-0' : '-left-60'">
                     <input type="text" name="address" value="ws://localhost:27095" id="connection-input"
+                        @keypressed="e.keyCode === 13 ? makeConnection() : ''"
                         class="inline-block w-56">
                     <div class="h-full py-2">
                         <span id="connection-light" class="block m-auto bg-green"></span>
@@ -159,30 +160,31 @@
                             <h1>Settings</h1>
                         </div>
                         <div class="settings-wrapper w-full">
+                            <!-- Toggle Settings -->
                             <div
                                 class="settings-input-group flex justify-between items-center w-full border-b border-gray-600 mb-2 py-2">
                                 <label for="render-buffer-outlines">Render buffer outlines</label>
-                                <input type="checkbox" name="render-buffer-outlines">
+                                <input type="checkbox" name="render-buffer-outlines" id="render-buffer-outlines">
                             </div>
                             <div
                                 class="settings-input-group flex justify-between items-center w-full border-b border-gray-600 mb-2 py-2">
                                 <label for="render-axis-lines">Render Axis</label>
-                                <input type="checkbox" name="render-axis-lines">
+                                <input type="checkbox" name="render-axis-lines" id="render-axis-lines">
                             </div>
                             <div
                                 class="settings-input-group flex justify-between items-center w-full border-b border-gray-600 mb-2 py-2">
                                 <label for="render-player-markers">Render player markers</label>
-                                <input type="checkbox" name="render-player-markers">
+                                <input type="checkbox" name="render-player-markers" id="render-player-markers">
                             </div>
                             <div
                                 class="settings-input-group flex justify-between items-center w-full border-b border-gray-600 mb-2 py-2">
-                                <label for="render-chunk-grid">Render buffer outlines</label>
-                                <input type="checkbox" name="render-chunk-grid">
+                                <label for="render-chunk-grid">Render chunk grid</label>
+                                <input type="checkbox" name="render-chunk-grid" id="render-chunk-grid">
                             </div>
                             <div
                                 class="settings-input-group flex justify-between items-center w-full border-b border-gray-600 mb-2 py-2">
                                 <label for="render-mouse-tooltip">Render mouse tooltip</label>
-                                <input type="checkbox" name="render-mouse-tooltip">
+                                <input type="checkbox" name="render-mouse-tooltip" id="render-mouse-tooltip">
                             </div>
 
                             <div class="settings-input-group mt-10">
@@ -208,17 +210,17 @@
                                 <div class="flex justify-between my-4 text-center text-black">
                                     <div class="input-group">
                                         <label for="x-offset-input" class="mb-2">X Offset</label>
-                                        <input type="text" name="x-offset" id="x-offset-input" class="w-20 bg-gray-900 px-4 py-2">
+                                        <input type="number" name="x-offset" id="x-offset-input" class="w-20 bg-gray-900 px-4 py-2">
                                     </div>
 
                                     <div class="input-group">
                                         <label for="z-offset-input" class="mb-2">Z Offset</label>
-                                        <input type="text" name="z-offset" id="z-offset-input" class="w-20 bg-gray-900 px-4 py-2">
+                                        <input type="number" name="z-offset" id="z-offset-input" class="w-20 bg-gray-900 px-4 py-2">
                                     </div>
 
                                     <div class="input-group">
                                         <label for="scale-input" class="mb-2">Scale</label>
-                                        <input type="text" name="scale" id="scale-input" class="w-20 bg-gray-900 px-4 py-2">
+                                        <input type="number" name="scale" id="scale-input" class="w-20 bg-gray-900 px-4 py-2">
                                     </div>
                                 </div>
 
