@@ -65,13 +65,13 @@ const UI = {
         UI.scaleInput = document.getElementById("scale-input");
 
         UI.xOffsetInput.addEventListener("change", (event) => {
-            renderer.offsetX = parseFloat(event.target.value);
+            renderer.ViewPort.setOffsetX(parseFloat(event.target.value));
         });
         UI.zOffsetInput.addEventListener("change", (event) => {
-            renderer.offsetY = parseFloat(event.target.value);
+            renderer.ViewPort.setOffsetY(parseFloat(event.target.value));
         });
         UI.scaleInput.addEventListener("change", (event) => {
-            renderer.scl = UI.capScale(parseFloat(event.target.value));
+            renderer.ViewPort.setScale(parseFloat(event.target.value));
         });
 
         let address = UI.addressInput.value;
@@ -104,24 +104,24 @@ const UI = {
             UI.statsBuffersRendered.innerHTML = renderer.Buffer.cachedVisibility.length;
             UI.statsViewersCount.innerHTML = 1; // TODO
 
-            if(renderer.offsetX !== UI.prevOffsetX) {
-                UI.xOffsetInput.value = renderer.offsetX;
-                UI.prevOffsetX = renderer.offsetX;
+            if(renderer.ViewPort.offsetX !== UI.prevOffsetX) {
+                UI.xOffsetInput.value = renderer.ViewPort.offsetX;
+                UI.prevOffsetX = renderer.ViewPort.offsetX;
             }
-            if(renderer.offsetY !== UI.prevOffsetZ) {
-                UI.zOffsetInput.value = renderer.offsetY;
-                UI.prevOffsetZ = renderer.offsetY;
+            if(renderer.ViewPort.offsetY !== UI.prevOffsetZ) {
+                UI.zOffsetInput.value = renderer.ViewPort.offsetY;
+                UI.prevOffsetZ = renderer.ViewPort.offsetY;
             }
-            if(renderer.scl !== UI.prevScale) {
-                UI.scaleInput.value = renderer.scl;
-                UI.prevScale = renderer.scl;
+            if(renderer.ViewPort.scale !== UI.prevScale) {
+                UI.scaleInput.value = renderer.ViewPort.scale;
+                UI.prevScale = renderer.ViewPort.scale;
             }
         }
 
         // Player hover
         let hovering = [];
         players.forEach(player => {
-            let coord = worldToCanvas(player.position.x, player.position.z, true);
+            let coord = renderer.ViewPort.worldToCanvas(player.position.x, player.position.z, true);
 
             fill('blue');
             ellipse(coord[0], coord[1], 6, 6);
@@ -213,13 +213,13 @@ const UI = {
     controlZoom: (event) => {
         let zoom = event.deltaY / 100;
 
-        let before = canvasToWorld(width / 2, height / 2);
+        let before =  renderer.ViewPort.canvasToWorld(width / 2, height / 2);
 
-        let prevScl = renderer.scl;
-        let newScl = UI.capScale(prevScl + zoom);
+        let prevScl = renderer.ViewPort.scale;
+        let newScl = prevScl + zoom;
 
-        renderer.scl = newScl;
-        let after = canvasToWorld(width / 2, height / 2);
+        renderer.ViewPort.setScale(newScl);
+        let after =  renderer.ViewPort.canvasToWorld(width / 2, height / 2);
 
         let deltaX = before[0] - after[0];
         let deltaY = before[1] - after[1];
@@ -228,12 +228,12 @@ const UI = {
         let deltaCanvasX = deltaX * 2;
         let deltaCanvasY = deltaY * 2;
 
-        renderer.offsetX -= deltaCanvasX / 2;
-        renderer.offsetY -= deltaCanvasY / 2;
+        renderer.ViewPort.offsetX -= deltaCanvasX / 2;
+        renderer.ViewPort.offsetY -= deltaCanvasY / 2;
 
 
 
-        let old = worldToCanvas(before[0], before[1], true);
+        let old = renderer.ViewPort.worldToCanvas(before[0], before[1], true);
         zoomPath.push(old);
 
         event.preventDefault();
@@ -265,8 +265,8 @@ const UI = {
         let currentPos = new p5.Vector(mouseX, mouseY);
         let d = currentPos.sub(anchor);
 
-        renderer.tempOffsetX = d.x;//(d.x * renderer.scl);
-        renderer.tempOffsetY = d.y;//(d.y * renderer.scl);
+        renderer.ViewPort.tempOffsetX = d.x;//(d.x * renderer.ViewPort.scale);
+        renderer.ViewPort.tempOffsetY = d.y;//(d.y * renderer.ViewPort.scale);
     },
 
     clickThroughElements: ['interface-overlay', 'console-messages'],
@@ -280,10 +280,13 @@ const UI = {
     mouseReleased: () => {
         anchor = null;
 
-        renderer.offsetX += renderer.tempOffsetX;
-        renderer.offsetY += renderer.tempOffsetY;
-        renderer.tempOffsetX = 0;
-        renderer.tempOffsetY = 0;
+        renderer.ViewPort.setOffsets(
+            renderer.ViewPort.offsetX + renderer.ViewPort.tempOffsetX,
+            renderer.ViewPort.offsetY + renderer.ViewPort.tempOffsetY
+        );
+
+        renderer.ViewPort.tempOffsetX = 0;
+        renderer.ViewPort.tempOffsetY = 0;
     },
 
     keyPressed: () => {
@@ -296,20 +299,27 @@ const UI = {
 
     handleMovement: () => {
         if(keyIsDown(BACKSPACE)) {
-            renderer.offsetX = width / 2;
-            renderer.offsetY = height / 2;
+            renderer.ViewPort.resetOffsets();
         }
         if(keyIsDown(RIGHT_ARROW)) {
-            renderer.offsetX -= 10 * renderer.scl;
+            renderer.ViewPort.setOffsetX(renderer.ViewPort.offsetX - 10 * renderer.ViewPort.scale);
         }
         if(keyIsDown(UP_ARROW)) {
-            renderer.offsetY += 10 * renderer.scl;
+            renderer.ViewPort.setOffsetY(renderer.ViewPort.offsetY + 10 * renderer.ViewPort.scale);
         }
         if(keyIsDown(DOWN_ARROW)) {
-            renderer.offsetY -= 10 * renderer.scl;
+            renderer.ViewPort.setOffsetY(renderer.ViewPort.offsetY - 10 * renderer.ViewPort.scale);
         }
         if(keyIsDown(LEFT_ARROW)) {
-            renderer.offsetX += 10 * renderer.scl;
+            renderer.ViewPort.setOffsetX(renderer.ViewPort.offsetX + 10 * renderer.ViewPort.scale);
+        }
+        // Press Z to Zoom In
+        if(keyIsDown(90)) {
+            renderer.ViewPort.setScale(renderer.ViewPort.scale += 0.1, renderer.ViewPort.middleBlock);
+        }
+        // Press X to Zoom Out
+        if(keyIsDown(88)) {
+            renderer.ViewPort.setScale(renderer.ViewPort.scale -= 0.1, renderer.ViewPort.middleBlock);
         }
     }
 

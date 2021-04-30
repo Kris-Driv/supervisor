@@ -38,25 +38,6 @@ function draw() {
     afterRender = [];
 }
 
-function canvasToWorld(canvasX, canvasY) {
-    return [
-        floor( ((canvasX - renderer.offsetX) * (1 / renderer.scl)) / RenderSettings.BLOCK_RESOLUTION),
-        floor( ((canvasY - renderer.offsetY) * (1 / renderer.scl)) / RenderSettings.BLOCK_RESOLUTION),
-        getWorldY(canvasX, canvasY)
-    ];
-}
-
-function worldToCanvas(worldX, worldZ, offset = true) {
-    return [
-        (worldX * renderer.scl) + (offset ? renderer.offsetX + renderer.tempOffsetX : 0),
-        (worldZ * renderer.scl) + (offset ? renderer.offsetY + renderer.tempOffsetY : 0)
-    ];
-}
-
-function worldToBuffer(worldX, worldZ) {
-    return [worldX, worldZ];
-}
-
 function getWorldY(x, z) {
     return 0;
     let cx = x >> 4;

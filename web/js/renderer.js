@@ -103,10 +103,10 @@ const renderer = {
 
         isVisible(buffer) {
             // Update the values we're going to use on this draw loop
-            buffer.canvasHeight = buffer.height * renderer.scl;
-            buffer.canvasWidth = buffer.width * renderer.scl;
-            buffer.canvasX = buffer.i * RenderSettings.BUFFER_SIZE * renderer.scl + renderer.offsetX + renderer.tempOffsetX;
-            buffer.canvasY = buffer.j * RenderSettings.BUFFER_SIZE * renderer.scl + renderer.offsetY + renderer.tempOffsetY;
+            buffer.canvasHeight = buffer.height * renderer.ViewPort.scale;
+            buffer.canvasWidth = buffer.width * renderer.ViewPort.scale;
+            buffer.canvasX = buffer.i * RenderSettings.BUFFER_SIZE * renderer.ViewPort.scale + renderer.ViewPort.offsetX + renderer.ViewPort.tempOffsetX;
+            buffer.canvasY = buffer.j * RenderSettings.BUFFER_SIZE * renderer.ViewPort.scale + renderer.ViewPort.offsetY + renderer.ViewPort.tempOffsetY;
             buffer.canvasRX = buffer.canvasX + buffer.canvasWidth;
             buffer.canvasRY = buffer.canvasY + buffer.canvasHeight;
 
@@ -123,6 +123,21 @@ const renderer = {
     },
 
     ViewPort: {
+        scaleMin: 1,
+        scaleMax: 5,
+
+        scale: scl,
+
+        offsetX: 0,
+        offsetY: 0,
+
+        tempOffsetX: 0,
+        tempOffsetY: 0,
+
+        middleBlock: [0, 0],
+
+        zoomAnchor: [0, 0],
+
         // TODO: Move appropriate sections of code to this object
         overlaps(x1, y1, x2, y2) {
             // TODO
@@ -133,15 +148,50 @@ const renderer = {
             //     x1 < width
             // );
         },
+        moveTo(worldX, worldY) {
+            let target = renderer.ViewPort.worldToCanvas(worldX, worldY, true);
+            renderer.ViewPort.offsetX -= (target[0] - width / 2);
+            renderer.ViewPort.offsetY -= (target[1] - height / 2);
+        },
+        canvasToWorld(canvasX, canvasY) {
+            return [
+                floor( ((canvasX - renderer.ViewPort.offsetX) * (1 / renderer.ViewPort.scale)) / RenderSettings.BLOCK_RESOLUTION),
+                floor( ((canvasY - renderer.ViewPort.offsetY) * (1 / renderer.ViewPort.scale)) / RenderSettings.BLOCK_RESOLUTION),
+                getWorldY(canvasX, canvasY)
+            ];
+        },
+        worldToCanvas(worldX, worldZ, offset = true) {
+            return [
+                (worldX * renderer.ViewPort.scale) + (offset ? renderer.ViewPort.offsetX + renderer.ViewPort.tempOffsetX : 0),
+                (worldZ * renderer.ViewPort.scale) + (offset ? renderer.ViewPort.offsetY + renderer.ViewPort.tempOffsetY : 0)
+            ];
+        },
+        setScale(value, moveTo = null) {
+            renderer.ViewPort.scale = min(renderer.ViewPort.scaleMax, max(renderer.ViewPort.scaleMin, round(parseFloat(value), 2)));
+
+            if(moveTo) {
+                renderer.ViewPort.moveTo(moveTo[0], moveTo[1], false);
+            }
+        },
+        setOffsetX(value) {
+            renderer.ViewPort.setOffsets(value, null);
+        },
+        setOffsetY(value) {
+            renderer.ViewPort.setOffsets(null, value);
+        },
+        setOffsets(x, y) {
+            if(x !== null) renderer.ViewPort.offsetX = x;
+            if(y !== null) renderer.ViewPort.offsetY = y;
+
+            renderer.ViewPort.middleBlock = this.canvasToWorld(width / 2, height / 2);
+        },
+        resetOffsets() {
+            renderer.ViewPort.setOffsets(0, 0);
+
+            renderer.ViewPort.tempOffsetX = 0;
+            renderer.ViewPort.tempOffsetY = 0;
+        }
     },
-
-    scl: scl,
-
-    offsetX: 0,
-    offsetY: 0,
-
-    tempOffsetX: 0,
-    tempOffsetY: 0,
 
     mapIcons: null,
 
@@ -151,8 +201,7 @@ const renderer = {
         renderer.BlockPainter = new FlatColorBlockPainter();
         // renderer.BlockPainter = new TexturedBlockPainter();
 
-        renderer.offsetX = width / 2;
-        renderer.offsetY = height / 2;
+        renderer.ViewPort.setOffsets(width / 2, height / 2);
 
         // TODO: move to preload
         loadImage('/assets/map_icons.png', (img) => {
@@ -257,9 +306,9 @@ const renderer = {
     },
 
     renderGridOverlay: () => {
-        var chunkSize = RenderSettings.CHUNK_SIZE * (renderer.scl);
-        var xOff = (renderer.offsetX + renderer.tempOffsetX) % chunkSize;
-        var yOff = (renderer.offsetY + renderer.tempOffsetY) % chunkSize;
+        var chunkSize = RenderSettings.CHUNK_SIZE * (renderer.ViewPort.scale);
+        var xOff = (renderer.ViewPort.offsetX + renderer.ViewPort.tempOffsetX) % chunkSize;
+        var yOff = (renderer.ViewPort.offsetY + renderer.ViewPort.tempOffsetY) % chunkSize;
         var linesInX = floor(width / chunkSize) + 1;
         var linesInY = floor(height / chunkSize) + 1;
 
@@ -283,14 +332,14 @@ const renderer = {
             push();
 
             translate(
-                buffer.i * RenderSettings.BUFFER_SIZE * renderer.scl + renderer.offsetX + renderer.tempOffsetX,
-                buffer.j * RenderSettings.BUFFER_SIZE * renderer.scl + renderer.offsetY + renderer.tempOffsetY
+                buffer.i * RenderSettings.BUFFER_SIZE * renderer.ViewPort.scale + renderer.ViewPort.offsetX + renderer.ViewPort.tempOffsetX,
+                buffer.j * RenderSettings.BUFFER_SIZE * renderer.ViewPort.scale + renderer.ViewPort.offsetY + renderer.ViewPort.tempOffsetY
             );
 
             noFill();
             stroke('green');
             strokeWeight(2);
-            rect(0, 0, RenderSettings.BUFFER_SIZE * renderer.scl, RenderSettings.BUFFER_SIZE * renderer.scl);
+            rect(0, 0, RenderSettings.BUFFER_SIZE * renderer.ViewPort.scale, RenderSettings.BUFFER_SIZE * renderer.ViewPort.scale);
 
             pop();
         });
@@ -299,18 +348,11 @@ const renderer = {
     renderAxis: () => {
         stroke('red');
         strokeWeight(1);
-        line(renderer.offsetX + renderer.tempOffsetX, 0, renderer.offsetX + renderer.tempOffsetX, height);
+        line(renderer.ViewPort.offsetX + renderer.ViewPort.tempOffsetX, 0, renderer.ViewPort.offsetX + renderer.ViewPort.tempOffsetX, height);
 
         stroke('blue');
         strokeWeight(1);
-        line(0, renderer.offsetY + renderer.tempOffsetY, width, renderer.offsetY + renderer.tempOffsetY);
-    },
-
-    resetOffsets: () => {
-        renderer.offsetX = 0;
-        renderer.offsetY = 0;
-        renderer.tempOffsetX = 0;
-        renderer.tempOffsetY = 0;
+        line(0, renderer.ViewPort.offsetY + renderer.ViewPort.tempOffsetY, width, renderer.ViewPort.offsetY + renderer.ViewPort.tempOffsetY);
     },
 
     drawPlayers: () => {
@@ -320,7 +362,7 @@ const renderer = {
             if (!player) return;
 
             push();
-            let coords = worldToCanvas(player.position.x, player.position.z, true);
+            let coords = renderer.ViewPort.worldToCanvas(player.position.x, player.position.z, true);
 
             // Move the origin to player pos
             translate(coords[0], coords[1]);
@@ -351,7 +393,7 @@ const renderer = {
         let padding = 2;
 
         // World Coordinates
-        let coord = canvasToWorld(mouseX, mouseY);
+        let coord =  renderer.ViewPort.canvasToWorld(mouseX, mouseY);
         let txt = `[${coord[0]}, ${coord[2]}, ${coord[1]}]`;
         fill('#000');
         rect(mouseX + 18, mouseY - 30, textWidth(txt) + 4, 24);
