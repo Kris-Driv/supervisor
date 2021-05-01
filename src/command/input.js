@@ -1,6 +1,5 @@
 const Command = require('./command.js');
 const readline = require("readline");
-const { exit } = require('process');
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -9,10 +8,10 @@ const rl = readline.createInterface({
 
 const Input = {
 
-    start: () => {
+    start: (closeCallback) => {
         rl.question('', Input.processInput);
 
-        rl.on('close', () => exit());
+        rl.on('close', closeCallback);
     },
 
     processInput: (rawInput) => {

@@ -32,6 +32,22 @@ const Packet = {
         }
     },
 
+    InfoPacket: {
+        listeners: [],
+        name: "info",
+        broadcast: true,
+
+        decode,
+        encode: (serverName, ip, port, levels, viewerCount) => {
+            return Packet._encode(Packet.InfoPacket.name, {
+                serverName, ip, port, levels, viewerCount
+             });
+        },
+        handle: (pk, ws) => {
+            return true;
+        }
+    },
+
     Close: {
         listeners: [],
         name: "close",

@@ -102,7 +102,7 @@ const UI = {
             UI.statsChunksCount.innerHTML = chunks.length;
             UI.statsBuffersCount.innerHTML = Object.values(renderer.Buffer.loaded).length;
             UI.statsBuffersRendered.innerHTML = renderer.Buffer.cachedVisibility.length;
-            UI.statsViewersCount.innerHTML = 1; // TODO
+            // UI.statsViewersCount.innerHTML = 1; // TODO
 
             if(renderer.ViewPort.offsetX !== UI.prevOffsetX) {
                 UI.xOffsetInput.value = renderer.ViewPort.offsetX;

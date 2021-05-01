@@ -2,7 +2,7 @@ const logger = require("../utils/logger.js");
 const Packet = require("../network/packet");
 const fs = require("fs");
 const { exit } = require("process");
-const _NetworkEntityStorageLogic = require("../network/storage.js");
+const _NetworkEntityStorageLogic = require("../network/network_entity_storage.js");
 
 const CommandInstances = {
     Network: {

@@ -4,7 +4,8 @@ const Packet = require("./network/packet");
 const NetworkEntity = require('./network/entity/network_entity.js');
 const MinecraftServer = require('./network/entity/minecraft_server.js');
 const ViewerClient = require('./network/entity/viewer_client.js');
-const _NetworkEntityStorageLogic = require("./network/storage");
+const _NetworkEntityStorageLogic = require("./network/network_entity_storage.js");
+const _LevelCacheStorageLogic = require("./level/level_storage.js");
 
 // Cache
 const Level = require("./level/level");
@@ -19,6 +20,10 @@ const AuthController = require("./controller/auth_controller");
 
 // Utils
 const logger = require("./utils/logger");
+const ChunkController = require("./controller/chunk_controller");
+const EntityController = require("./controller/entity_controller");
+const PlayerController = require("./controller/player_controller");
+const { exit } = require('process');
 
 
 // This is just a namespace
@@ -39,14 +44,12 @@ const Supervisor = {
     wss: null,
 
     ..._NetworkEntityStorageLogic,
+    ..._LevelCacheStorageLogic,
 
     // Controllers
     controllers: [
-        LevelController, AuthController, 
+        LevelController, AuthController, ChunkController, EntityController, PlayerController
     ],
-
-    // Caches, regarding levels
-    levels: [],
 
     _setup: (socket, config) => {
         Supervisor.socket = socket;
@@ -61,6 +64,18 @@ const Supervisor = {
         Supervisor._controllers();
         Supervisor._caches();
         Supervisor._input();
+
+        Supervisor._infoPacketTask();
+    },
+
+    _stop: () => {
+        Object.values(_LevelCacheStorageLogic.levels).forEach(cache => {
+            _LevelCacheStorageLogic.saveCache(cache);
+        });
+
+        logger.info('Server stopped.');
+
+        exit();
     },
 
     /**
@@ -137,15 +152,41 @@ const Supervisor = {
      * Initializes the memory storage objects for chunks and entities
      */
     _caches: () => {
-        Supervisor.levels.push(new Level('cache_1'));
+        Supervisor.loadCache('test', true);
     },
 
     /**
      * Initialize the console inputs
      */
     _input: () => {
-        Supervisor.Input.start();
+        Supervisor.Input.start(Supervisor._stop);
         Supervisor.Command.setup(Supervisor);
+    },
+
+    _infoPacketTask: () => {
+        setTimeout(() => {
+            let server = _NetworkEntityStorageLogic.servers[0] ?? null;
+            let viewers = _NetworkEntityStorageLogic.viewers;
+
+            Supervisor.Handler._broadcast(
+                Packet.InfoPacket.encode(
+                    server ? server.name : undefined, 
+                    server ? server.ip : undefined, 
+                    server ? server.port : undefined, 
+                    server ? server.levels : undefined, 
+                    Object.values(viewers).length),
+
+                viewers
+            );
+
+            // Supervisor.Handler._broadcast(
+            //     Packet.InfoPacket.encode(undefined, undefined, undefined, undefined, Object.values(viewers).length),
+
+            //     _NetworkEntityStorageLogic.servers
+            // );
+
+            Supervisor._infoPacketTask();
+        }, 5000);
     },
 
 }

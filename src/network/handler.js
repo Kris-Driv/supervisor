@@ -64,6 +64,10 @@ const Handler = {
     },
 
     _broadcast: (packet, recipients = []) => {
+        if(typeof packet !== 'string') {
+            packet = JSON.stringify(packet);
+        }
+
         recipients.forEach(networkEntity => {
             networkEntity.send(packet);
         });

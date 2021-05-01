@@ -12,7 +12,7 @@ function connectPocketCore(address, onopen, onclose) {
 
     // Connection opened
     socket.addEventListener('open', function (event) {
-        socket.send(JSON.stringify({ 'type': 'subscribe' }));
+        socket.send(JSON.stringify({ 'type': 'login.viewer', 'body': { 'name': 'Viewer', 'level': null } }));
 
         UI.log("Connected to " + address + " successfully!");
     });
@@ -38,8 +38,28 @@ function handlePocketcorePacket(event) {
     // console.log(response);
 
     switch (response.type) {
+        case 'login.viewer':
+            if(response.body.status !== true) {
+                UI.log('Authentication failed');
+                socket.close();
+            } else {
+                UI.log('Authentication successful!');
+            }
+
+            break;
+
+        case 'close':
+            UI.log('Connection was close, reason: ' + response.body.reason);
+            break;
+
+        case 'info':
+            let viewerCount = response.body.viewerCount;
+            UI.statsViewersCount.innerHTML = viewerCount;
+
+            break;
+
         case 'message':
-            UI.log('[PocketCore]: ' + response.body.message);
+            UI.log(response.body.message);
 
             break;
         case 'chunk':

@@ -3,6 +3,10 @@ const Packet = require("../network/packet");
 
 class Level {
 
+    static create(name) {
+        return new Level(name);
+    }
+
     constructor(name = 'world') {
         logger.info(`Level cache for '${name}' initiated`);
 
@@ -41,6 +45,10 @@ class Level {
         });
     }
 
+    get path() {
+        return 'cache/' + this.name + '/' + this.name + '.json';
+    }
+
     addEntity(eid, entity) {
         this.entities[eid] = entity;
     }
@@ -77,7 +85,7 @@ class Level {
         });
     }
 
-    toPacket() {
+    toJSON() {
         if(this.cachedPacket) {
             return this.cachedPacket;
         }
