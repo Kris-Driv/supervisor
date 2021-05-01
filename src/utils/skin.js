@@ -1,6 +1,6 @@
 const Jimp = require('jimp');
 const fs = require('fs');
-const Packet = require('./packet');
+const Packet = require('../network/packet');
 const converter = require('hex2dec');
 const logger = require('./logger');
 

@@ -1,5 +1,5 @@
-const logger = require("./logger");
-const Packet = require("./packet");
+const logger = require("../utils/logger.js");
+const Packet = require("../network/packet");
 
 class Level {
 

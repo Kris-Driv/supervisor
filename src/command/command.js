@@ -1,9 +1,22 @@
-const logger = require("./logger");
-const Packet = require("./packet");
+const logger = require("../utils/logger.js");
+const Packet = require("../network/packet");
 const fs = require("fs");
 const { exit } = require("process");
+const _NetworkEntityStorageLogic = require("../network/storage.js");
 
 const CommandInstances = {
+    Network: {
+        usage: 'network',
+
+        execute: (ws, args) => {
+            logger.info('------- Network Status -------');
+            logger.info('Connections in queue: ' + Object.values(_NetworkEntityStorageLogic.connectionQueue).length);
+            logger.info('Viewers connected: ' + Object.values(_NetworkEntityStorageLogic.viewers).length);
+            logger.info('Servers connected: ' + Object.values(_NetworkEntityStorageLogic.servers).length);
+
+            return true;
+        },
+    },
     Entities: {
         usage: 'entities',
 
@@ -128,16 +141,21 @@ const CommandInstances = {
 
 const Command = {
 
-    handler: null,
+    supervisor: null,
 
     registered: {
         'cache': CommandInstances.Cache,
         'say': CommandInstances.Say,
         'stop': CommandInstances.Stop,
-        'entities': CommandInstances.Entities
+        'entities': CommandInstances.Entities,
+        'network': CommandInstances.Network,
     },
 
     ...CommandInstances,
+
+    setup: (supervisor) => {
+        Command.supervisor = supervisor;
+    },
 
     _process: (ws, rawInput) => {
         let args = rawInput.trim().split(' ');

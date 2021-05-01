@@ -9,8 +9,16 @@ function getTime() {
 }
 
 const logger = {
+    debugLevel: 0,
+
     _log: (text, prefix, color) => {
         console.log(`${chalk.cyan(getTime())} ${color(`[${prefix}]: ${text}`)}`);
+    },
+
+    debug: (text) => {
+        if(logger.debugLevel > 0) {
+            logger._log(text, "DEBUG", chalk.gray);
+        }
     },
       
     info: (text) => {
@@ -21,8 +29,12 @@ const logger = {
         logger._log(text, "NOTICE", chalk.magenta);
     },
 
+    warning: (text) => {
+        logger._log(text, "WARNING", chalk.yellow);
+    },
+
     error: (text) => {
-        logger._log(text, "RED", chalk.red);
+        logger._log(text, "ERROR", chalk.red);
     }
 }
 

@@ -8,6 +8,6 @@
     "ws": "^7.4.5"
   },
   "scripts": {
-    "start": "node ./src/index.js"
+    "start": "node ./src/main.js"
   }
 }

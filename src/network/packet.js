@@ -1,8 +1,50 @@
-const logger = require("./logger");
+const logger = require("../utils/logger");
 
 const decode = (pk) => pk.body;
 
 const Packet = {
+
+    ViewerLogin: {
+        listeners: [],
+        name: "login.viewer",
+        broadcast: true,
+
+        decode,
+        encode: () => {
+            return Packet._encode(Packet.ViewerLogin.name, { status: true });
+        },
+        handle: (pk, ws) => {
+            return true;
+        }
+    },
+
+    ServerLogin: {
+        listeners: [],
+        name: "login.server",
+        broadcast: true,
+
+        decode,
+        encode: () => {
+            return Packet._encode(Packet.ServerLogin.name, { status: true });
+        },
+        handle: (pk, ws) => {
+            return true;
+        }
+    },
+
+    Close: {
+        listeners: [],
+        name: "close",
+        broadcast: false,
+
+        decode,
+        encode: (reason) => {
+            return Packet._encode(Packet.Close.name, { reason });
+        },
+        handle: (pk, ws) => {
+            return false;
+        }
+    },
 
     EntityPosition: {
         listeners: [],
@@ -11,7 +53,7 @@ const Packet = {
 
         decode,
         encode: (eid, position) => {
-            return Packet._encode('entity.position', {
+            return Packet._encode(Packet.EntityPosition.name, {
                 eid,
                 position
             });
@@ -136,20 +178,6 @@ const Packet = {
         },
         handle: (pk, ws) => {
             ws.send(JSON.stringify(pk));
-            return true;
-        }
-    },
-
-    Subscribe: {
-        listeners: [],
-        name: "subscribe",
-        decode: (pk) => {
-            return true;
-        },
-        encode: () => {
-            return Packet._encode(Packet.Subscribe.name);
-        },
-        handle: (pk, ws) => {
             return true;
         }
     },
