@@ -190,7 +190,21 @@ const renderer = {
 
             renderer.ViewPort.tempOffsetX = 0;
             renderer.ViewPort.tempOffsetY = 0;
-        }
+        },
+        diagnol() {
+            let left = renderer.ViewPort.canvasToWorld(0, 0);
+            let right = renderer.ViewPort.canvasToWorld(width, height);
+            let delta = [Math.abs(right[0] - left[0]), Math.abs(right[1] - left[1])];
+
+            return delta;
+        },
+        toPacket() {
+            return {
+                worldX: renderer.ViewPort.middleBlock[0],
+                worldZ: renderer.ViewPort.middleBlock[1],
+                radius: ((max(renderer.ViewPort.diagnol()) / 2) >> 8) + 1
+            }
+        },
     },
 
     mapIcons: null,

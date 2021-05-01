@@ -1,14 +1,10 @@
 // Network
 const Handler = require("./network/handler");
 const Packet = require("./network/packet");
-const NetworkEntity = require('./network/entity/network_entity.js');
 const MinecraftServer = require('./network/entity/minecraft_server.js');
 const ViewerClient = require('./network/entity/viewer_client.js');
 const _NetworkEntityStorageLogic = require("./network/network_entity_storage.js");
 const _LevelCacheStorageLogic = require("./level/level_storage.js");
-
-// Cache
-const Level = require("./level/level");
 
 // Input
 const Input = require("./command/input");
@@ -24,6 +20,7 @@ const ChunkController = require("./controller/chunk_controller");
 const EntityController = require("./controller/entity_controller");
 const PlayerController = require("./controller/player_controller");
 const { exit } = require('process');
+const ViewerController = require("./controller/viewer_controller");
 
 
 // This is just a namespace
@@ -48,7 +45,7 @@ const Supervisor = {
 
     // Controllers
     controllers: [
-        LevelController, AuthController, ChunkController, EntityController, PlayerController
+        LevelController, AuthController, ChunkController, EntityController, PlayerController, ViewerController
     ],
 
     _setup: (socket, config) => {
@@ -159,7 +156,9 @@ const Supervisor = {
      * Initialize the console inputs
      */
     _input: () => {
-        Supervisor.Input.start(Supervisor._stop);
+        Supervisor.Input.start(() => {
+            Supervisor._stop();
+        });
         Supervisor.Command.setup(Supervisor);
     },
 

@@ -10,6 +10,7 @@ const Input = require('./command/input.js');
  * Setup the Http server to serve web view and associated assets
  */
 const express = require("express");
+
 const app = express();
 
 app.use(express.static("web"));

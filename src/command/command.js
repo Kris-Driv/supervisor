@@ -162,6 +162,10 @@ const Command = {
         let command = args.shift();
         command = command.toLowerCase();
 
+        if(command.length < 1) {
+            return true;
+        }
+
         let $command = Command.registered[command];
 
         if(!$command) {

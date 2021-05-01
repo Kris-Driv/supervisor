@@ -41,7 +41,23 @@ const Packet = {
         encode: (serverName, ip, port, levels, viewerCount) => {
             return Packet._encode(Packet.InfoPacket.name, {
                 serverName, ip, port, levels, viewerCount
-             });
+            });
+        },
+        handle: (pk, ws) => {
+            return true;
+        }
+    },
+
+    ViewPort: {
+        listeners: [],
+        name: "viewport",
+        broadcast: true,
+
+        decode,
+        encode: (worldX, worldZ, radius) => {
+            return Packet._encode(Packet.ViewPort.name, {
+                worldX, worldZ, radius
+            });
         },
         handle: (pk, ws) => {
             return true;
@@ -149,13 +165,13 @@ const Packet = {
         }
     },
 
-    Level: {
+    Sector: {
         listeners: [],
         name: "level",
         decode,
 
         encode: (name, chunks, entities) => {
-            return Packet._encode(Packet.Level.name, {
+            return Packet._encode(Packet.Sector.name, {
                 name,
                 chunks: Buffer.from(JSON.stringify(Object.values(chunks))).toString('base64'),
                 entities
@@ -173,9 +189,10 @@ const Packet = {
 
         decode,
 
-        encode: (body) => {
+        encode: (x, z, layer) => {
             return Packet._encode(Packet.Chunk.name, body);
         },
+        
         handle: (pk, ws) => {
             return true;
         }

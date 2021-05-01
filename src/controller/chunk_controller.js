@@ -1,3 +1,4 @@
+const _LevelCacheStorageLogic = require("../level/level_storage");
 const _NetworkEntityStorageLogic = require("../network/network_entity_storage");
 const Packet = require("../network/packet");
 
@@ -14,7 +15,14 @@ const ChunkController = {
     },
 
     handleChunkPacket(pk, ws) {
-        ChunkController.supervisor.Handler._broadcast(pk, _NetworkEntityStorageLogic.viewers);
+        let cache = _LevelCacheStorageLogic.getCacheByName('test');
+
+        if(cache) {
+            cache.setChunk(pk.body.chunk.x, pk.body.chunk.z, pk.body.chunk);
+        } else {
+            // TODO
+            throw 'No cache to store incoming chunk';
+        }
     },
 
 };

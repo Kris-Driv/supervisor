@@ -1,5 +1,8 @@
 const logger = require("../utils/logger.js");
 const Packet = require("../network/packet");
+const coord_hash = require("../utils/coord_hash.js");
+const _NetworkEntityStorageLogic = require("../network/network_entity_storage.js");
+const Handler = require("../network/handler.js");
 
 class Level {
 
@@ -13,6 +16,9 @@ class Level {
         this.name = name;
         this.chunks = [];
         this.entities = [];
+
+        // md5 hashes to keep track of updated sectors
+        this.hashes = [];
 
         this.cachedPacket = null;
 
@@ -69,14 +75,25 @@ class Level {
         this.entities[eid].position = position;
     } 
 
-    clearChunks() {
-        this.chunks = [];
+    clearChunks(sectorCoordinates) {
+        if(sectorCoordinates) {
+            this.chunks[coord_hash(sectorCoordinates)] = [];
+        } else {
+            this.chunks = [];
+        }
     }
 
     setChunk(x, z, chunk) {
-        this.chunks[x + ':' + z] = chunk;
+        let sectorHash = coord_hash([x << 4, z << 4]);
+        if(this.chunks[sectorHash] === undefined) {
+            this.chunks[sectorHash] = [];
+        }
 
-        this.cachedPacket = null;
+        this.chunks[sectorHash][coord_hash([x, z])] = chunk;
+
+        Handler._broadcast(Packet.Chunk.encode(x, z, chunk.layer), Object.values(_NetworkEntityStorageLogic.viewers).filter(viewer => {
+            return !viewer.canSee(x << 4, z << 4);
+        }));
     }
 
     setChunks(chunks) {
@@ -85,13 +102,14 @@ class Level {
         });
     }
 
-    toJSON() {
-        if(this.cachedPacket) {
-            return this.cachedPacket;
-        }
+    getSectorHash(sectorCoordinates) {
+        return this.hashes[coord_hash(sectorCoordinates)] ?? null;
+    }
 
-        this.cachedPacket = Packet.Level.encode(this.name, this.chunks, this.entities);
-        return this.cachedPacket;
+    sendSector(viewer, sectorX, sectorZ) {
+        viewer.send();
+
+        return 'nothing special';
     }
 
 }

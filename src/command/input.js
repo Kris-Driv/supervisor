@@ -8,10 +8,16 @@ const rl = readline.createInterface({
 
 const Input = {
 
+    closeCallback: null,
+
     start: (closeCallback) => {
         rl.question('', Input.processInput);
 
-        rl.on('close', closeCallback);
+        if(closeCallback) {
+            Input.closeCallback = closeCallback;
+        }
+
+        rl.on('close', Input.closeCallback);
     },
 
     processInput: (rawInput) => {

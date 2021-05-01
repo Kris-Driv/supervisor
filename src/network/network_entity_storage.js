@@ -1,5 +1,5 @@
-const MinecraftServer = require('./entity/minecraft_server.js');
 const ViewerClient = require('./entity/viewer_client.js');
+const MinecraftServer = require('./entity/minecraft_server.js');
 
 require('../utils/object_id.js');
 

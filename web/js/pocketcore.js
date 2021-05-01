@@ -18,6 +18,8 @@ function connectPocketCore(address, onopen, onclose) {
     });
 
     socket.addEventListener('close', () => {
+        socket = null;
+
         UI.log('Socket closed');
     });
 
@@ -32,6 +34,17 @@ function connectPocketCore(address, onopen, onclose) {
     socket.addEventListener('message', handlePocketcorePacket);
 }
 
+const sendViewPortPacket = () => {
+    if(socket === null) return;
+
+    sendPacket({
+        type: 'viewport',
+        body: renderer.ViewPort.toPacket()
+    });
+    
+    setTimeout(sendViewPortPacket, 1000);
+};
+
 function handlePocketcorePacket(event) {
     let response = JSON.parse(event.data);
     let player;
@@ -44,8 +57,13 @@ function handlePocketcorePacket(event) {
                 socket.close();
             } else {
                 UI.log('Authentication successful!');
+                sendViewPortPacket();
             }
 
+            break;
+
+        case 'viewport':
+            renderer.ViewPort.moveTo(response.body.worldX, response.body.worldZ);
             break;
 
         case 'close':
@@ -134,10 +152,10 @@ function handlePocketcorePacket(event) {
     
 }
 
-function sendPacket(packet) {
+function sendPacket(packet, callback = null) {
     return new Promise((resolve) => {
-        socket.send(packet);
+        socket.send(JSON.stringify(packet));
 
         resolve();
-    });
+    }).then(callback);
 }
