@@ -1,4 +1,5 @@
 const fs = require("fs");
+const { fileURLToPath } = require("url");
 const logger = require("../utils/logger");
 const Level = require("./level");
 
@@ -13,16 +14,18 @@ const _LevelCacheStorageLogic = {
     loadCache(name, create = false) {
         let cache = _LevelCacheStorageLogic.getCacheByName(name);
 
-        if(cache) {
+        if (cache) {
             return;
         }
 
         logger.info(`Loading cache '${name}' ...`);
 
-        if(fs.existsSync('cache/' + name + '.json')) {
-            _LevelCacheStorageLogic.levels[name] = Level.fromFile(name, fs.readFileSync('cache' + name + '.json'));
+        if (fs.existsSync(`./cache/${name}/${name}.json`)) {
+            logger.info('Loaded cache from memory successfully');
+            _LevelCacheStorageLogic.levels[name] = Level.fromJSON(fs.readFileSync(`./cache/${name}/${name}.json`));
         } else {
-            if(create) {
+            if (create) {
+                logger.info('New cache instance ' + name + ' was created');
                 _LevelCacheStorageLogic.levels[name] = Level.create(name);
             }
         }
@@ -36,9 +39,13 @@ const _LevelCacheStorageLogic = {
 
     saveCache(cache) {
         logger.info(`Saving cache for level '${cache.name}'`);
-        fs.writeFile(cache.path, cache.toJSON(), () => {
-            logger.info('Cache ' + cache.name + ' saved');
-        });
+
+        let folder = './cache/' + cache.name;
+        if (!fs.existsSync(folder)) {
+            fs.mkdirSync(folder);
+        }
+        
+        fs.writeFileSync(cache.path, cache.toJSON(), { encoding: 'utf8', flag: 'w' });
     },
 
     deleteCache(cache) {

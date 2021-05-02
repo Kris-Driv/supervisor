@@ -56,7 +56,7 @@ class Level {
     }
 
     get path() {
-        return 'cache/' + this.name + '/' + this.name + '.json';
+        return './cache/' + this.name + '/' + this.name + '.json';
     }
 
     addEntity(eid, entity) {
@@ -95,7 +95,7 @@ class Level {
 
         this.chunks[sectorHash][coord_hash([x, z])] = chunk;
 
-        sectorHash = this.getSectorHash([x, z]);
+        sectorHash = this.getSectorHash([x >> 4, z >> 4]);
         if(this.cachedPackets[sectorHash]) {
             // This eats into memory, todo: remove the key
             this.cachedPackets[sectorHash] = null;
@@ -122,9 +122,9 @@ class Level {
         if(sector) {
             // Check if there is previous versions that already was sent
             sectorHash = this.getSectorHash([sectorX, sectorZ]);
-            // if(sectorHash) {
-            //     packet = this.cachedPackets[sectorHash];
-            // }
+            if(sectorHash) {
+                packet = this.cachedPackets[sectorHash];
+            }
 
             if(!packet) {
                 packet = Packet.Sector.encode(sector, []);
@@ -140,7 +140,26 @@ class Level {
     }
 
     toJSON() {
-        return '{}';
+        let chunks = Object.values(this.chunks).map((sector) => {
+            return Object.values(sector);
+        }).flat();
+
+        return JSON.stringify({
+            chunks: chunks,
+            name: this.name,
+        });
+    }
+
+    static fromJSON(jsonString) {
+        let data = JSON.parse(jsonString);
+
+        let instance = Level.create(data.name);
+
+        data.chunks.map(chunk => {
+            instance.setChunk(chunk.x, chunk.z, chunk);
+        });
+        
+        return instance;
     }
 
 }

@@ -63,6 +63,8 @@ const Supervisor = {
         Supervisor._input();
 
         Supervisor._infoPacketTask();
+
+        logger.info('Ready to serve');
     },
 
     _stop: () => {
