@@ -277,7 +277,7 @@ const renderer = {
             resolve();
         });
     },
-    
+
     _processChunkRenderQueue: async (chunk = null, force = false) => {
         let chunksToRender;
 
@@ -400,6 +400,9 @@ const renderer = {
     renderFrameRateOnCanvas: () => {
         push();
         noStroke();
+        // add little background
+        fill(0, 0, 0, 130);
+        rect(width / 2 - 21, 2, 42, 24);
         fill("#fff");
         textSize(16);
         textAlign(CENTER);
