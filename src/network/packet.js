@@ -167,12 +167,11 @@ const Packet = {
 
     Sector: {
         listeners: [],
-        name: "level",
+        name: "sector",
         decode,
 
-        encode: (name, chunks, entities) => {
+        encode: (chunks, entities) => {
             return Packet._encode(Packet.Sector.name, {
-                name,
                 chunks: Buffer.from(JSON.stringify(Object.values(chunks))).toString('base64'),
                 entities
             });
@@ -190,7 +189,7 @@ const Packet = {
         decode,
 
         encode: (x, z, layer) => {
-            return Packet._encode(Packet.Chunk.name, body);
+            return Packet._encode(Packet.Chunk.name, {x, z, layer});
         },
         
         handle: (pk, ws) => {

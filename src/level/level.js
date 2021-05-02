@@ -3,6 +3,7 @@ const Packet = require("../network/packet");
 const coord_hash = require("../utils/coord_hash.js");
 const _NetworkEntityStorageLogic = require("../network/network_entity_storage.js");
 const Handler = require("../network/handler.js");
+const md5 = require('blueimp-md5');
 
 class Level {
 
@@ -14,13 +15,16 @@ class Level {
         logger.info(`Level cache for '${name}' initiated`);
 
         this.name = name;
+        // coordHash => chunks[] (x, z, layer)
         this.chunks = [];
+        // Should be divided into sectors as well, TODO
         this.entities = [];
 
-        // md5 hashes to keep track of updated sectors
+        // coordHash => md5 hashes to keep track of updated sectors
         this.hashes = [];
 
-        this.cachedPacket = null;
+        // md5 => packet string
+        this.cachedPackets = [];
 
         Packet.PlayerJoin.listeners.push((pk, ws) => {
             this.addEntity(pk.body.eid, {
@@ -84,16 +88,18 @@ class Level {
     }
 
     setChunk(x, z, chunk) {
-        let sectorHash = coord_hash([x << 4, z << 4]);
+        let sectorHash = coord_hash([x >> 4, z >> 4]);
         if(this.chunks[sectorHash] === undefined) {
             this.chunks[sectorHash] = [];
         }
 
         this.chunks[sectorHash][coord_hash([x, z])] = chunk;
 
-        Handler._broadcast(Packet.Chunk.encode(x, z, chunk.layer), Object.values(_NetworkEntityStorageLogic.viewers).filter(viewer => {
-            return !viewer.canSee(x << 4, z << 4);
-        }));
+        sectorHash = this.getSectorHash([x, z]);
+        if(this.cachedPackets[sectorHash]) {
+            // This eats into memory, todo: remove the key
+            this.cachedPackets[sectorHash] = null;
+        }
     }
 
     setChunks(chunks) {
@@ -107,9 +113,34 @@ class Level {
     }
 
     sendSector(viewer, sectorX, sectorZ) {
-        viewer.send();
+        let coordHash = coord_hash([sectorX, sectorZ]);
+        let sector = this.chunks[coordHash];
+        let packet;
+        let sectorHash;
 
-        return 'nothing special';
+        // If sector exists and can be sent now
+        if(sector) {
+            // Check if there is previous versions that already was sent
+            sectorHash = this.getSectorHash([sectorX, sectorZ]);
+            // if(sectorHash) {
+            //     packet = this.cachedPackets[sectorHash];
+            // }
+
+            if(!packet) {
+                packet = Packet.Sector.encode(sector, []);
+                sectorHash = md5(packet);
+                this.cachedPackets[sectorHash] = packet;
+            }
+
+            this.hashes[coordHash] = sectorHash;    
+            viewer.send(packet);
+        }
+
+        return sectorHash ?? null;
+    }
+
+    toJSON() {
+        return '{}';
     }
 
 }

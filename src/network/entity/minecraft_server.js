@@ -1,4 +1,3 @@
-const _LevelCacheStorageLogic = require('../../level/level_storage.js');
 const NetworkEntity = require('./network_entity.js');
 
 class MinecraftServer extends NetworkEntity {
@@ -9,13 +8,7 @@ class MinecraftServer extends NetworkEntity {
         this.name = packet.body.name;
         this.levels = packet.body.levels;
 
-        this.prepareCaches(this.levels);
-
         return true;
-    }
-
-    prepareCaches(levels) {
-        _LevelCacheStorageLogic.loadCaches(levels, true);
     }
 
 }

@@ -9,7 +9,6 @@ function recieveChunk(chunk) {
         validateChunk(chunk);
     } catch(error) {
         return UI.log(`Invalid ${describeChunk(chunk)}:` + error);
-        throw error;
     }
 
     renderer.renderChunk(chunk);

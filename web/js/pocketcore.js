@@ -48,7 +48,6 @@ const sendViewPortPacket = () => {
 function handlePocketcorePacket(event) {
     let response = JSON.parse(event.data);
     let player;
-    // console.log(response);
 
     switch (response.type) {
         case 'login.viewer':
@@ -85,8 +84,8 @@ function handlePocketcorePacket(event) {
             UI.log('Recieved chunkX: ' + response.body.chunk.x + ', chunkZ: ' + response.body.chunk.z);
             break;
 
-        case 'level':
-            UI.log('Recieved level data: ' + response.body.chunks.length);
+        case 'sector':
+            UI.log('Recieved sector ');
             recieveChunks(response.body.chunks);
             recieveEntities(response.body.entities);
             // console.log('Recieved chunks in bulk, size: ' + floor(response.body.chunks.length) + ' bytes');

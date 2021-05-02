@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "blueimp-md5": "^2.18.0",
     "chalk": "^4.1.1",
     "express": "^4.17.1",
     "hex2dec": "^1.1.2",
