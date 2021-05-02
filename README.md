@@ -25,3 +25,6 @@ Now start your pocketmine server with MyPath installed and the world should star
 # IMPORTANT
 
 This project is very early in development!
+
+# Screenshot
+![Screenshot of 40 000 blocks](https://i.imgur.com/wdecYWk.jpg)
