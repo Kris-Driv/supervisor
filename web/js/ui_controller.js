@@ -1,4 +1,6 @@
 let zoomPath = [];
+let hovering = [];
+let followPlayer = null;
 
 const UI = {
 
@@ -119,7 +121,7 @@ const UI = {
         }
 
         // Player hover
-        let hovering = [];
+        hovering = [];
         players.forEach(player => {
             let coord = renderer.ViewPort.worldToCanvas(player.position.x, player.position.z, true);
 
@@ -273,6 +275,16 @@ const UI = {
 
     mousePressed: (event) => {
         if(UI.clickThroughElements.indexOf(event.target.id) < 0) return;
+
+        if(hovering.length > 0) {
+            followPlayer = hovering[0].eid;
+            UI.log('Now following: ' + hovering[0].name);
+        } else {
+            if(followPlayer !== null) {
+                followPlayer = null;
+                UI.log('Camera stopped folowing player');
+            }
+        }
 
         anchor = new p5.Vector(mouseX, mouseY);
     },

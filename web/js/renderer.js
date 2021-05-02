@@ -1,17 +1,12 @@
 var scl = 5;
 
-var depthBrightness = 80;
-var depthBlendMode;
-var depthAlphaOffset = 5;
-
-
-var showZoomPath = true;
 var showGridOverlay = true;
 var showBufferOutlines = true;
 var showCoordinates = true;
 var showPlayers = true;
 var showAxis = true;
 var showCrosshair = true;
+var showFps = true;
 
 const RenderSettings = {}
 // Pixels per block
@@ -24,6 +19,10 @@ RenderSettings.CHUNKS_IN_BUFFER = 16; // 2x2 = 4
 RenderSettings.BUFFER_SIZE = RenderSettings.CHUNKS_IN_BUFFER * RenderSettings.CHUNK_SIZE;
 // How many chunks can be rendererd per frame
 RenderSettings.CHUNK_RENDER_RATE = 1;
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 const renderer = {
 
@@ -155,8 +154,8 @@ const renderer = {
         },
         canvasToWorld(canvasX, canvasY) {
             return [
-                floor( ((canvasX - renderer.ViewPort.offsetX) * (1 / renderer.ViewPort.scale)) / RenderSettings.BLOCK_RESOLUTION),
-                floor( ((canvasY - renderer.ViewPort.offsetY) * (1 / renderer.ViewPort.scale)) / RenderSettings.BLOCK_RESOLUTION),
+                floor(((canvasX - renderer.ViewPort.offsetX) * (1 / renderer.ViewPort.scale)) / RenderSettings.BLOCK_RESOLUTION),
+                floor(((canvasY - renderer.ViewPort.offsetY) * (1 / renderer.ViewPort.scale)) / RenderSettings.BLOCK_RESOLUTION),
                 getWorldY(canvasX, canvasY)
             ];
         },
@@ -169,7 +168,7 @@ const renderer = {
         setScale(value, moveTo = null) {
             renderer.ViewPort.scale = min(renderer.ViewPort.scaleMax, max(renderer.ViewPort.scaleMin, round(parseFloat(value), 2)));
 
-            if(moveTo) {
+            if (moveTo) {
                 renderer.ViewPort.moveTo(moveTo[0], moveTo[1], false);
             }
         },
@@ -180,8 +179,8 @@ const renderer = {
             renderer.ViewPort.setOffsets(null, value);
         },
         setOffsets(x, y) {
-            if(x !== null) renderer.ViewPort.offsetX = x;
-            if(y !== null) renderer.ViewPort.offsetY = y;
+            if (x !== null) renderer.ViewPort.offsetX = x;
+            if (y !== null) renderer.ViewPort.offsetY = y;
 
             renderer.ViewPort.middleBlock = this.canvasToWorld(width / 2, height / 2);
         },
@@ -248,6 +247,7 @@ const renderer = {
         if (showAxis) renderer.renderAxis();
         if (showPlayers) renderer.drawPlayers();
         if (showCrosshair) renderer.renderCrosshair();
+        if (showFps) renderer.renderFrameRateOnCanvas();
     },
 
     chunkRenderQueue: [],
@@ -260,14 +260,42 @@ const renderer = {
         }
     },
 
-    _processChunkRenderQueue: (chunk = null, force = false) => {
+    renderChunkBatchAsync: function (chunks, preloadBuffers = true) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (preloadBuffers) {
+                    chunks.forEach(chunk => {
+                        renderer.Buffer.getFor(chunk.x << 4, chunk.z << 4, true);
+                    });
+                }
+
+                renderer._processChunkRenderQueue(chunks, true);
+            } catch (e) {
+                reject(e);
+            }
+
+            resolve();
+        });
+    },
+    
+    _processChunkRenderQueue: async (chunk = null, force = false) => {
+        let chunksToRender;
+
         if (chunk) {
-            chunks = [chunk];
+            if (!(chunk instanceof Array)) {
+                chunksToRender = [chunk];
+            } else {
+                chunksToRender = chunk;
+            }
         } else {
-            chunks = renderer.chunkRenderQueue.splice(0, RenderSettings.CHUNK_RENDER_RATE);
+            chunksToRender = renderer.chunkRenderQueue.splice(0, RenderSettings.CHUNK_RENDER_RATE);
         }
 
-        chunks.forEach(chunk => {
+        for (var i = chunksToRender.length - 1; i >= 0; i--) {            
+            chunk = chunksToRender.pop();
+
+            await sleep(1);
+
             var buffer = renderer.Buffer.getFor(chunk.x << 4, chunk.z << 4);
 
             // If buffer is not visible in the viewport, don't bother rendering the chunk
@@ -316,7 +344,7 @@ const renderer = {
                     }
                 }
             }
-        });
+        }
     },
 
     renderGridOverlay: () => {
@@ -369,6 +397,16 @@ const renderer = {
         line(0, renderer.ViewPort.offsetY + renderer.ViewPort.tempOffsetY, width, renderer.ViewPort.offsetY + renderer.ViewPort.tempOffsetY);
     },
 
+    renderFrameRateOnCanvas: () => {
+        push();
+        noStroke();
+        fill("#fff");
+        textSize(16);
+        textAlign(CENTER);
+        text(frameRate().toFixed(1), width / 2, 20);
+        pop();
+    },
+
     drawPlayers: () => {
         noStroke();
         fill('red');
@@ -407,7 +445,7 @@ const renderer = {
         let padding = 2;
 
         // World Coordinates
-        let coord =  renderer.ViewPort.canvasToWorld(mouseX, mouseY);
+        let coord = renderer.ViewPort.canvasToWorld(mouseX, mouseY);
         let txt = `[${coord[0]}, ${coord[2]}, ${coord[1]}]`;
         fill('#000');
         rect(mouseX + 18, mouseY - 30, textWidth(txt) + 4, 24);
